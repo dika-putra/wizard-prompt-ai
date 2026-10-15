@@ -36,6 +36,17 @@ Gunakan gaya ini jika kamu sudah punya gambar, misalnya foto, ilustrasi buatan s
 
 Prompt dengan gaya ini secara tegas meminta model mempertahankan gaya, warna, pencahayaan, dan detail gambar input. Negative prompt video juga ditambah larangan perubahan gaya. Tombol **✨ Perbaiki** tidak akan menambahkan kata-kata gaya.
 
+## POV profesi
+
+Untuk format "POV: kamu jadi pemadam kebakaran", atau karakter yang menjalani suatu profesi.
+
+1. Di langkah **Tema**, pilih **👷 POV Profesi**, lalu pilih sudut pandang:
+   - **🎥 POV orang pertama**: kamera dari mata si profesi. Tangan dan seragamnya terlihat di bawah frame, wajahnya tidak pernah ditampilkan. Kamera default Handheld.
+   - **🧍 Karakter jadi profesi**: karakter dari langkah Karakter menjalani profesinya. Pakaian mereka otomatis diganti seragam profesi.
+2. Pilih profesi (pemadam kebakaran, polisi, dokter, pilot, astronot, koki, guru, petani, nelayan, montir, tukang bangunan, masinis, kurir paket, dokter hewan, barista, ilmuwan), atau **Profesi lain** lalu isi nama, tempat kerja, dan seragamnya. Untuk profesi lain, pakai "Buat alur adegan dengan AI" agar adegannya lebih pas.
+3. Di mode POV, karakter bersifat opsional. Karakter hanya muncul di adegan yang menyebut namanya, misalnya sebagai rekan kerja atau orang yang ditolong.
+4. Tambahkan teks "POV: kamu jadi …" belakangan di Canva atau editor video. Rasio 9:16 paling cocok untuk TikTok, Reels, dan Shorts.
+
 ## Joget & dance
 
 1. Di langkah **Tema**, pilih **💃 Joget & Dance**, lalu pilih jenis joget, tempo, dan tempat.
@@ -83,4 +94,7 @@ Hal yang perlu diketahui:
 | "Kuota API gratis sedang habis" | Tunggu beberapa menit, atau pindah ke `AI_PROVIDER=groq`. |
 | Diminta kode akses terus | Kode salah. Kode tersimpan di browser setelah berhasil. |
 | Karakter berubah bentuk di video | Pakai kamera Statis, perpendek aksi, kurangi jumlah karakter. |
+| Halaman login muncul terus walau password benar | Pastikan `SITE_PASSWORD` sudah di-Redeploy, dan browser tidak memblokir cookie. |
+| Lupa password | Lihat atau ganti `SITE_PASSWORD` di Vercel, lalu Redeploy. |
+| Ingin keluar | Klik **Keluar** di kanan atas (hanya muncul jika password aktif). |
 | Ingin mulai dari nol | Klik **Mulai ulang** di kanan atas. |

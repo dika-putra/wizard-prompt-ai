@@ -63,6 +63,7 @@ Hasil:
 ```
 
 - `count` dibatasi 1–12.
+- `pov` (opsional): `{ "role": "firefighter", "uniform": "...", "setting": "...", "firstPerson": true }`. Jika `firstPerson` bernilai `true`, setiap adegan diawali "POV as a …:" dan tidak mendeskripsikan wajah penonton. Jika `false`, karakter yang dikirim menjalani profesi tersebut. Adegan dibuat positif dan ramah anak, tanpa senjata atau kekerasan.
 - `dance` (opsional): `{ "name": "funny duck-style", "moves": ["..."], "tempo": "medium groovy tempo", "funny": true }`. Jika diisi, model membuat adegan joget (1–2 gerakan per adegan, wide shot, kamera statis), dan setiap adegan bisa berisi `sing`, yaitu lirik pendek orisinal berbahasa Indonesia (bukan lirik lagu yang sudah ada).
 - `shot` dan `cam` divalidasi terhadap daftar label di server. Nilai yang tidak dikenal diganti `Medium shot` / `Statis`.
 - Dengan `hemat: true`, aturan mode hemat kredit ikut dikirim ke model.
@@ -150,3 +151,19 @@ Respons model dibersihkan dari *code fence*, lalu di-parse sebagai JSON. Jika ga
 2. Batasi dan potong semua input dengan helper `str()`.
 3. Jika perlu, validasi hasil di `handler()` sebelum dikirim, seperti yang dilakukan untuk `scenes`.
 4. Di `index.html`, panggil `await ai("nama-tugas", data, tombol)`. Fungsi ini sudah menangani kode akses, status loading, dan pesan error.
+
+---
+
+# API: `/api/auth`
+
+Mengelola login jika `SITE_PASSWORD` diatur. Endpoint ini dikecualikan dari middleware, sehingga bisa diakses sebelum login.
+
+| Request | Fungsi | Response |
+|---|---|---|
+| `POST /api/auth` (form `password=...`) | Login | `303` ke `/` dengan cookie `wpa_auth`, atau `303` ke `/?e=1` (password salah) / `/?e=2` (terlalu banyak percobaan) |
+| `GET /api/auth?action=logout` | Logout | `303` ke `/`, cookie dihapus |
+| `GET /api/auth?action=status` | Cek apakah proteksi aktif | `{ "protected": true }` |
+
+Saat sesi tidak valid, `middleware.js` membalas halaman login (status `401`) untuk halaman biasa, dan JSON `{ "error": "...", "login": true }` (status `401`) untuk `/api/*`. Frontend memuat ulang halaman ketika menerima `login: true`.
+
+Token sesi adalah `HMAC-SHA256(SITE_PASSWORD, "wizard-prompt-animasi:session:v1")` dalam hex (lihat `lib/token.js`).

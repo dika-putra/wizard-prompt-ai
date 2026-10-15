@@ -12,7 +12,7 @@ The app UI and the guides in `docs/` are in Indonesian.
 
 1. **Format**: prompt type (T2I, I2V, T2V), platform (Google Flow / Canva), aspect ratio (16:9, 9:16, 1:1), credit-saving mode, and automatic English prompts.
 2. **Style**: 12 ready-made styles (3D Cartoon Pixar, 2D Anime, Claymation, Chibi, Storybook, Wayang & Batik, and more), your own, or **Ikuti gambar asli** ("Follow the original image") to animate your own image without changing its style. You can pick several styles at once, plus mood and lighting.
-3. **Theme**: 10 ready-made story themes (forest, Ramadan, village, outer space, fable, and more), a **Joget & Dance** theme (14 dance types including funny ones, with tempo and venue options), or a custom one.
+3. **Theme**: 10 ready-made story themes (forest, Ramadan, village, outer space, fable, and more), a **Joget & Dance** theme (14 dance types including funny ones, with tempo and venue options), a **POV Profesi** theme (16 professions, first-person view or characters in uniform), or a custom one.
 4. **Characters**: any number, each with name, type, age, appearance, clothing, and personality.
 5. **Scenes**: 1 to 12 scenes (about 8 seconds each), filled in automatically from the theme and editable; shot type, camera movement, dialogue, and singing lines per scene.
 6. **Result**: prompts per style and per scene, a *character sheet* prompt, a negative prompt, copy buttons, and a usage guide.
@@ -39,8 +39,12 @@ All non-AI features work without an API key, even when the file is opened straig
 ```
 .
 ├── index.html          # Wizard UI (HTML, CSS, and JS in one file)
+├── middleware.js       # Site-wide password protection (Vercel Routing Middleware)
 ├── api/
-│   └── generate.js     # Vercel Serverless Function, calls Gemini / Groq
+│   ├── generate.js     # Vercel Serverless Function, calls Gemini / Groq
+│   └── auth.js         # Login, logout, and protection status
+├── lib/
+│   └── token.js        # Session token helper (used by middleware and auth)
 ├── docs/
 │   ├── API.md          # Docs for the /api/generate endpoint
 │   └── PANDUAN.md      # Usage guide and Google Flow tips
@@ -86,7 +90,9 @@ Go to *Project → Settings → Environment Variables* in Vercel:
 | `GEMINI_API_KEY` | Yes, if using Gemini | | API key from Google AI Studio |
 | `AI_PROVIDER` | No | `gemini` | `gemini` or `groq` |
 | `GROQ_API_KEY` | Yes, if `AI_PROVIDER=groq` | | API key from Groq |
-| `ACCESS_CODE` | Recommended | empty | Code visitors must enter before using the AI features |
+| `SITE_PASSWORD` | Recommended | empty | Password to open the whole site. Empty means the site is open to everyone |
+| `SESSION_DAYS` | No | `30` | How long a login lasts (days) |
+| `ACCESS_CODE` | No | empty | Extra code for the AI features only. Not needed if `SITE_PASSWORD` is set |
 | `RATE_LIMIT` | No | `30` | Max requests per IP per 10 minutes |
 | `GEMINI_MODEL` | No | `gemini-2.5-flash` | Change it when a newer model is available |
 | `GROQ_MODEL` | No | `llama-3.3-70b-versatile` | Change it when a newer model is available |
@@ -117,7 +123,9 @@ vercel dev                   # http://localhost:3000
 ## Security
 
 - Never put an API key in `index.html` or commit `.env*` files. `.gitignore` already excludes them.
-- Turn on `ACCESS_CODE` if the site is public, so others cannot use up your API quota.
+- Set `SITE_PASSWORD` so only people who know it can open the wizard and use your API quota. The check runs on the server (middleware) before the page is sent, so the password cannot be read from the page source.
+- The session lives in an `HttpOnly` cookie holding an HMAC of the password, not the password itself. Changing `SITE_PASSWORD` (then Redeploy) signs out all old sessions.
+- Login attempts are limited to 10 per IP per 10 minutes (*best effort*).
 - The built-in rate limit is stored in memory per serverless instance, so it is *best effort*, not full protection.
 - On free tiers, API providers may use the data you send to train models. Do not send sensitive data.
 

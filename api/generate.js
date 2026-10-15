@@ -43,6 +43,9 @@ Mood: ${str(d.mood, 60)}
 Characters:
 - ${chars || "(none given, invent one friendly main character)"}
 ${d.idea ? `Story idea from the user (may be in Indonesian): ${str(d.idea, 800)}` : ""}
+${d.pov ? `This is a PROFESSION video about ${str(d.pov.role, 80)} (uniform: ${str(d.pov.uniform, 200)}; workplace: ${str(d.pov.setting, 200)}).
+${d.pov.firstPerson ? `- FIRST-PERSON POV format: start every scene text with "POV as a ${str(d.pov.role, 80)}:" and describe what the viewer sees and does with their own hands. Never describe the viewer's face. Named characters are optional and appear only as people the viewer meets. Prefer cam "Handheld" or "Statis".` : "- The listed characters work as this profession, wearing the uniform."}
+- Show realistic, positive, kid-friendly moments of the job (preparing, the main task, helping someone, a proud ending). No weapons, violence, injuries or gore.` : ""}
 ${d.dance ? `This is a DANCE video. Dance style: ${str(d.dance.name, 60)}, ${str(d.dance.tempo, 60)}${d.dance.funny ? ", funny and comedic with exaggerated cartoon expressions" : ""}.
 Example moves: ${(Array.isArray(d.dance.moves) ? d.dance.moves : []).slice(0, 6).map((m) => str(m, 160)).join("; ")}.
 - Each scene shows 1-2 simple dance moves with the full body visible. Mostly use shot "Wide shot" and cam "Statis".
