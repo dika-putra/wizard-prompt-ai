@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wizard Prompt Animasi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#E9F0FB; --panel:#FFFFFF; --ink:#1B2550; --muted:#5B6488; --line:#CBD5EA;
+  --sun:#F2B21B; --sunInk:#3A2A00; --teal:#1FA59A; --tealSoft:#D8F2EF; --chip:#F2F5FC; --danger:#C2412D;
+  --code:#F5F8FE;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#121733; --panel:#1C2347; --ink:#EEF1FF; --muted:#A3ABCF; --line:#323C6B;
+    --sun:#F5BE3A; --sunInk:#2A1E00; --teal:#3CC4B7; --tealSoft:#183A44; --chip:#252D58; --danger:#F07862;
+    --code:#161C3D; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121733; --panel:#1C2347; --ink:#EEF1FF; --muted:#A3ABCF; --line:#323C6B;
+  --sun:#F5BE3A; --sunInk:#2A1E00; --teal:#3CC4B7; --tealSoft:#183A44; --chip:#252D58; --danger:#F07862;
+  --code:#161C3D; color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+h1,h2,h3{font-family:"Baloo 2","Plus Jakarta Sans",system-ui,sans-serif;line-height:1.15;margin:0}
+.wrap{max-width:920px;margin:0 auto;padding:20px 16px 120px}
+header.top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:8px 0 18px}
+header.top h1{font-size:clamp(28px,5vw,40px);font-weight:800}
+header.top p{margin:4px 0 0;color:var(--muted)}
+.ghost{background:none;border:1px solid var(--line);color:var(--muted);border-radius:10px;padding:8px 12px;font:inherit;font-size:13px;cursor:pointer}
+.ghost:hover{color:var(--ink);border-color:var(--ink)}
+
+/* stepper */
+.steps{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:18px}
+.steps button{flex:1 0 auto;display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);color:var(--muted);padding:8px 12px;border-radius:999px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.steps button .n{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--chip);font-size:12px}
+.steps button.on{border-color:var(--ink);color:var(--ink)}
+.steps button.on .n{background:var(--sun);color:var(--sunInk)}
+.steps button.done .n{background:var(--teal);color:#fff}
+
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px}
+.panel h2{font-size:26px;font-weight:800}
+.lead{color:var(--muted);margin:4px 0 18px;max-width:62ch}
+.group{margin-top:20px}
+.group > label.t, .group > .t{display:block;font-weight:700;margin-bottom:8px}
+.hint{color:var(--muted);font-size:13px;margin-top:6px}
+
+/* option tiles */
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.tile{position:relative;text-align:left;background:var(--chip);border:2px solid transparent;border-radius:14px;padding:12px 12px 12px 12px;cursor:pointer;font:inherit;color:var(--ink)}
+.tile:hover{border-color:var(--line)}
+.tile.on{border-color:var(--ink);background:var(--panel);box-shadow:inset 0 0 0 1px var(--ink)}
+.tile .em{font-size:22px;line-height:1}
+.tile b{display:block;margin-top:6px;font-size:14px}
+.tile span{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.tile.on::after{content:"✓";position:absolute;top:8px;right:10px;width:20px;height:20px;border-radius:50%;background:var(--sun);color:var(--sunInk);display:grid;place-items:center;font-size:12px;font-weight:800}
+
+.seg{display:inline-flex;flex-wrap:wrap;gap:6px}
+.seg button{background:var(--chip);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:8px 12px;font:inherit;font-size:14px;cursor:pointer}
+.seg button.on{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+
+input[type=text],textarea,select{width:100%;background:var(--code);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;color:var(--ink)}
+textarea{min-height:70px;resize:vertical}
+input:focus,textarea:focus,select:focus,button:focus-visible{outline:3px solid color-mix(in srgb,var(--sun) 70%,transparent);outline-offset:1px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:620px){.row{grid-template-columns:1fr}}
+.field label{display:block;font-size:13px;font-weight:600;margin-bottom:4px;color:var(--muted)}
+.check{display:flex;align-items:center;gap:8px;cursor:pointer;margin:6px 0}
+.check input{width:18px;height:18px;accent-color:var(--teal)}
+
+/* characters */
+.char{border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px;background:var(--panel)}
+.char-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.avatar{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#fff;flex:none}
+.char-head input{font-weight:700}
+.x{background:none;border:none;color:var(--danger);font:inherit;font-size:13px;cursor:pointer;white-space:nowrap}
+.add{width:100%;border:2px dashed var(--line);background:none;border-radius:14px;padding:14px;color:var(--muted);font:inherit;font-weight:600;cursor:pointer}
+.add:hover{color:var(--ink);border-color:var(--ink)}
+
+/* scenes */
+.scene{display:grid;grid-template-columns:44px 1fr;gap:12px;border-top:1px dashed var(--line);padding:14px 0}
+.scene:first-of-type{border-top:none}
+.scene .num{font-family:"Baloo 2",sans-serif;font-weight:800;font-size:26px;color:var(--teal);line-height:1}
+.scene .opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+@media (max-width:620px){.scene .opts{grid-template-columns:1fr}}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:6px}
+
+/* results — storyboard frames */
+.styletabs{display:flex;gap:6px;overflow-x:auto;margin:16px 0}
+.frame{position:relative;border:2px solid var(--ink);border-radius:6px;margin:18px 0;background:var(--panel)}
+.frame .bar{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--ink);color:var(--panel);padding:8px 12px;
+  background-image:repeating-linear-gradient(90deg,transparent 0 14px,color-mix(in srgb,var(--panel) 25%,transparent) 14px 22px);
+  background-size:100% 4px;background-repeat:no-repeat;background-position:bottom}
+.frame .bar h3{font-size:18px;font-weight:800}
+.frame .bar small{opacity:.8;font-size:12px}
+.frame .body{padding:12px}
+.pblock{margin:10px 0 14px}
+.pblock .ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:8px}
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--tealSoft);color:var(--ink)}
+.tag.v{background:color-mix(in srgb,var(--sun) 30%,var(--panel))}
+.tag.n{background:var(--chip);color:var(--muted)}
+pre.p{margin:0;white-space:pre-wrap;word-break:break-word;background:var(--code);border:1px solid var(--line);border-radius:10px;padding:12px;font:13px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink);max-height:none}
+.copy{background:var(--sun);color:var(--sunInk);border:none;border-radius:8px;padding:6px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.copy.ok{background:var(--teal);color:#fff}
+.tips{background:var(--tealSoft);border-radius:14px;padding:14px 16px;margin-top:18px}
+.tips h3{font-size:18px;margin-bottom:6px}
+.tips ol{margin:0;padding-left:20px}
+.tips li{margin:4px 0}
+
+/* bottom nav */
+.nav{position:fixed;left:0;right:0;bottom:0;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-top:1px solid var(--line);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));z-index:5}
+.nav .in{max-width:920px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.btn{border:none;border-radius:12px;padding:12px 20px;font:inherit;font-weight:700;cursor:pointer}
+.btn.pri{background:var(--ink);color:var(--panel)}
+.btn.sec{background:var(--panel);color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.nav .info{color:var(--muted);font-size:13px;text-align:center;flex:1}
+.ai{display:inline-flex;align-items:center;gap:6px;background:var(--tealSoft);color:var(--ink);border:1px solid var(--teal);border-radius:10px;padding:8px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.ai:hover{background:var(--teal);color:#fff}
+.ai:disabled{opacity:.6;cursor:wait}
+.ai.sm{padding:5px 10px;border-radius:8px}
+.spin{width:12px;height:12px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;display:inline-block;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.aibox{background:var(--chip);border-radius:14px;padding:14px;margin:14px 0}
+.aibox .row{align-items:end}
+.btns{display:flex;gap:6px;flex-wrap:wrap}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--panel);padding:10px 16px;border-radius:12px;font-size:14px;max-width:min(92vw,520px);z-index:20;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+.toast.bad{background:var(--danger);color:#fff}
+.warn{margin-top:8px;font-size:13px;background:color-mix(in srgb,var(--sun) 18%,var(--panel));border-left:3px solid var(--sun);border-radius:8px;padding:8px 10px}
+.warn:empty{display:none}
+.warn ul{margin:0;padding-left:18px}
+.hemat-sum{border-radius:12px;padding:10px 14px;margin:0 0 12px;font-size:14px;background:color-mix(in srgb,var(--sun) 22%,var(--panel))}
+.hemat-sum.ok{background:var(--tealSoft)}
+.idnote{border-radius:12px;padding:10px 14px;margin:0 0 12px;font-size:14px;background:var(--chip);border:1px solid var(--teal);display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.idnote[hidden]{display:none}
+.err{color:var(--danger);font-size:13px;font-weight:600;margin-top:8px}
+@media (prefers-reduced-motion:no-preference){.panel{animation:in .25s ease-out}@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Wizard Prompt Animasi</h1>
+      <p>Susun prompt gambar &amp; video adegan demi adegan, siap tempel ke Google Flow atau Canva.</p>
+    </div>
+    <button class="ghost" id="resetBtn" title="Hapus semua isian dan mulai dari awal">Mulai ulang</button>
+  </header>
+  <nav class="steps" id="steps" aria-label="Langkah"></nav>
+  <main id="view"></main>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+<div class="nav"><div class="in">
+  <button class="btn sec" id="back">Kembali</button>
+  <div class="info" id="info"></div>
+  <button class="btn pri" id="next">Lanjut</button>
+</div></div>
+
+<script>
+/* ---------------- DATA ---------------- */
+const STEPS=["Format","Gaya","Tema","Karakter","Adegan","Hasil"];
+
+const STYLES=[
+ {id:"pixar",em:"🧸",name:"3D Cartoon Pixar",desc:"Lembut, ekspresif, mata besar",
+  look:"3D animated cartoon style, Pixar-like feature film rendering, soft subsurface scattering, big expressive eyes, rounded stylized proportions, vibrant colors, global illumination, highly detailed",
+  motion:"smooth feature-film 3D animation, expressive squash-and-stretch character acting"},
+ {id:"anime",em:"🌸",name:"Anime 2D",desc:"Garis tegas, cel shading",
+  look:"2D anime style, clean cel shading, crisp line art, painterly detailed backgrounds, vibrant palette, high quality anime film look",
+  motion:"fluid anime animation, dynamic hair and cloth movement, subtle anime-style camera parallax"},
+ {id:"painted",em:"🍃",name:"Anime lukisan cat air",desc:"Hangat, pastel, ala film anime klasik",
+  look:"hand-painted anime film aesthetic, soft watercolor backgrounds, gentle pastel colors, whimsical and nostalgic atmosphere, detailed nature",
+  motion:"gentle hand-drawn animation, soft wind moving grass and hair, calm pacing"},
+ {id:"clay",em:"🧱",name:"Claymation",desc:"Plastisin, stop-motion",
+  look:"claymation stop-motion style, handcrafted plasticine characters with subtle fingerprint texture, miniature handmade set, soft studio lighting",
+  motion:"stop-motion animation feel at 12 frames per second, slightly jittery handcrafted movement"},
+ {id:"chibi",em:"🍡",name:"Chibi Kawaii 3D",desc:"Kepala besar, imut, mainan",
+  look:"cute chibi kawaii 3D style, oversized heads and tiny bodies, pastel colors, glossy toy-like vinyl materials, soft rim light",
+  motion:"bouncy playful animation, cute exaggerated reactions"},
+ {id:"storybook",em:"📖",name:"Buku Cerita Anak",desc:"Cat air & pensil warna",
+  look:"children's storybook illustration, soft watercolor and colored pencil texture, warm paper grain, gentle friendly colors",
+  motion:"gentle 2.5D parallax animation, illustrated layers moving softly like a living picture book"},
+ {id:"flat",em:"🔷",name:"2D Flat Vector",desc:"Motion graphic modern",
+  look:"2D flat vector illustration, bold simple shapes, minimal shading, clean modern motion-graphic look, limited color palette",
+  motion:"clean motion-graphics animation, smooth easing, shape-based transitions"},
+ {id:"classic2d",em:"🎞️",name:"Kartun 2D Klasik",desc:"Hand-drawn tradisional",
+  look:"classic 2D hand-drawn animation, traditional cel animation look, painted backgrounds, warm vintage colors",
+  motion:"classic hand-drawn character animation with lively timing"},
+ {id:"realistic",em:"🎬",name:"Sinematik Realistis",desc:"Seperti film live action",
+  look:"cinematic photorealistic, shot on 35mm film, shallow depth of field, natural film grain, realistic textures and lighting",
+  motion:"realistic cinematic motion, natural physics, steady professional camera work"},
+ {id:"lowpoly",em:"🔺",name:"Low Poly 3D",desc:"Geometris, diorama",
+  look:"low poly 3D art, faceted geometric shapes, flat-shaded stylized lighting, miniature diorama feel",
+  motion:"smooth low poly 3D animation, simple readable movements"},
+ {id:"paper",em:"✂️",name:"Paper Cutout",desc:"Kerajinan kertas berlapis",
+  look:"paper cutout craft style, layered paper and cardboard textures, handmade diorama, soft shadows between layers",
+  motion:"paper puppet animation, layers sliding and flipping, handmade charm"},
+ {id:"wayang",em:"🪔",name:"Nuansa Wayang & Batik",desc:"Sentuhan budaya Indonesia",
+  look:"Indonesian wayang kulit inspired illustration, intricate carved ornamental patterns, batik motifs, warm backlit golden glow, rich earthy colors",
+  motion:"shadow-puppet style animation, graceful articulated limb movement, flickering warm backlight"},
+ {id:"custom",em:"✏️",name:"Gaya sendiri",desc:"Tulis deskripsi gayamu",look:"",motion:""}
+];
+
+const THEMES=[
+ {id:"forest",em:"🌳",name:"Petualangan di hutan",setting:"a lush magical tropical forest with giant trees, hanging vines, glowing mushrooms and sunbeams through the canopy",
+  beats:["{A} walks along a forest path, looking around in wonder","{ALL} discover a mysterious glowing object hidden behind the bushes","{A} and {B} try to cross a river by hopping on wobbly stones","{ALL} help each other and make it across, cheering happily","{ALL} sit together on a hill at sunset, smiling warmly"]},
+ {id:"edu",em:"🔤",name:"Edukasi anak",setting:"a bright colorful classroom full of toys, alphabet posters and a big window",
+  beats:["{A} waves hello to the viewer in a cheerful classroom","{A} points at big floating colorful numbers 1, 2, 3 appearing in the air","{B} counts apples one by one with {A}, both excited","{ALL} clap and dance together after getting the answer right","{ALL} wave goodbye to the viewer"]},
+ {id:"ramadan",em:"🌙",name:"Ramadan & Islami",setting:"a cozy Indonesian village during Ramadan, a small mosque with green dome, hanging lanterns and a crescent moon in the evening sky",
+  beats:["{A} looks up at the crescent moon from the mosque yard, eyes shining","{ALL} help prepare takjil and dates on a long table","{A} shares food with an elderly neighbor kindly","{ALL} break the fast together as the adzan sounds at sunset","{ALL} walk home carrying glowing lanterns through the village"]},
+ {id:"space",em:"🚀",name:"Luar angkasa",setting:"outer space with colorful nebulas, a small friendly rocket and distant cartoon planets",
+  beats:["{A} counts down and the rocket launches into the starry sky","{ALL} float weightlessly inside the rocket, laughing","{ALL} land on a strange glowing planet with bouncy ground","{A} and {B} meet a tiny friendly alien and share a snack","{ALL} fly back home as Earth appears in the window"]},
+ {id:"ocean",em:"🐠",name:"Bawah laut",setting:"a vibrant coral reef underwater with colorful fish, sea turtles and light rays from the surface",
+  beats:["{A} dives into the clear blue sea with a splash","{ALL} swim alongside a gentle sea turtle","{A} finds a plastic bag tangled around the coral","{ALL} clean up the reef together carefully","the reef glows brightly as fish dance around {ALL}"]},
+ {id:"village",em:"🌾",name:"Kehidupan desa",setting:"a peaceful Indonesian village with green terraced rice fields, bamboo houses, coconut trees and distant volcano",
+  beats:["morning mist over the rice fields as a rooster crows, {A} stretches in front of a bamboo house","{A} and {B} ride bicycles along the narrow paths between rice fields","{ALL} fly a colorful kite on a windy hill","the kite gets stuck in a tree and {ALL} think of a clever plan","{ALL} lie on the grass watching the sunset behind the volcano"]},
+ {id:"school",em:"🎒",name:"Sekolah & persahabatan",setting:"a cheerful Indonesian elementary school with a flag pole, schoolyard and red-white uniforms",
+  beats:["{A} runs through the school gate, a little late, backpack bouncing","{A} sits alone looking shy during break time","{B} walks over and offers to share lunch","{ALL} play together in the schoolyard, laughing","{ALL} walk home side by side as best friends"]},
+ {id:"fable",em:"🦊",name:"Fabel / dongeng",setting:"an enchanted storybook meadow with a winding river, wildflowers and a big old tree",
+  beats:["{A} boasts proudly in front of the other animals in the meadow","{B} quietly keeps working hard nearby","{A} gets into trouble because of being careless","{B} kindly comes to help {A}","{A} learns the lesson and thanks {B}, both smiling"]},
+ {id:"city",em:"🏙️",name:"Kota futuristik",setting:"a futuristic city with flying cars, neon signs, glass towers and floating gardens",
+  beats:["sweeping view of the futuristic city at dawn, {A} on a rooftop","{A} rides a hover-board through busy sky lanes","{ALL} discover the city's power is going out","{A} and {B} race to fix the giant energy core","the city lights up again and {ALL} celebrate"]},
+ {id:"beach",em:"🏖️",name:"Liburan ke pantai",setting:"a sunny tropical beach with white sand, turquoise water, palm trees and colorful umbrellas",
+  beats:["{ALL} run toward the sea with excitement","{A} and {B} build a giant sandcastle","a wave suddenly washes the sandcastle away, everyone gasps","{ALL} laugh and build an even bigger one","{ALL} watch the orange sunset over the sea"]},
+ {id:"custom",em:"✨",name:"Buat tema baru",setting:"",beats:[]}
+];
+
+const GENERIC_BEATS=[
+ "establishing shot of {SET}, setting the mood",
+ "{A} is introduced, doing something that shows their personality",
+ "{ALL} encounter a problem or surprise related to {THEME}",
+ "{A} and {B} try to solve it, but the first attempt fails",
+ "{ALL} work together with a clever idea and succeed",
+ "{ALL} celebrate happily, closing shot"
+];
+
+const CHAR_TYPES=[["Anak laki-laki","young boy"],["Anak perempuan","young girl"],["Remaja","teenager"],["Pria dewasa","adult man"],["Wanita dewasa","adult woman"],["Kakek / nenek","elderly person"],["Hewan","cute animal"],["Robot","friendly robot"],["Makhluk fantasi","fantasy creature"]];
+const MOODS=[["Ceria","cheerful and playful"],["Hangat","warm and heartfelt"],["Lucu","funny and lighthearted"],["Petualangan","adventurous and exciting"],["Misterius","mysterious and curious"],["Epik","epic and grand"],["Tenang","calm and peaceful"],["Haru","emotional and touching"]];
+const LIGHTS=[["Golden hour","warm golden hour sunlight"],["Siang cerah","bright sunny daylight"],["Pagi berkabut","soft misty morning light"],["Malam bercahaya","night scene with warm glowing lights"],["Studio lembut","soft even studio lighting"],["Dramatis","dramatic contrast lighting with rim light"]];
+const CAMS=[["Statis","static locked-off camera"],["Zoom in perlahan","slow push-in toward the characters"],["Zoom out","slow pull-back revealing the environment"],["Pan kiri ke kanan","smooth pan from left to right"],["Ikuti karakter","tracking shot following the character"],["Orbit","slow orbit around the characters"],["Drone dari atas","aerial drone shot slowly descending"],["Close-up wajah","close-up on the character's facial expression"],["Handheld","gentle handheld camera movement"]];
+const SHOTS=[["Wide shot","wide establishing shot"],["Medium shot","medium shot"],["Close-up","close-up shot"],["Low angle","low angle shot looking up"],["Over the shoulder","over-the-shoulder shot"]];
+const COLORS=["#1FA59A","#E0663B","#6C5CE7","#D9A21B","#2F80ED","#C2417F","#3B8E3B","#8E5A3B"];
+
+/* ---------------- STATE ---------------- */
+const KEY="wizard-prompt-animasi-v1";
+const fresh=()=>({step:0,modes:{t2i:true,i2v:true,t2v:false},platform:"flow",ar:"16:9",lang:"en",
+  styles:["pixar"],customStyle:"",theme:"forest",customTheme:{name:"",setting:""},
+  mood:"Ceria",light:"Golden hour",audio:true,neg:true,
+  chars:[{name:"Kiko",type:"Anak laki-laki",age:"7 tahun",look:"short messy black hair, warm brown skin, round cheeks",outfit:"yellow t-shirt and blue shorts, red sneakers",trait:"curious and cheerful"}],
+  scenes:[],activeStyle:"pixar",storyIdea:"",sceneCount:"5",polished:{},hemat:true,finalStyle:"",autoEn:true,tr:{}});
+let S;
+try{S=JSON.parse(localStorage.getItem(KEY))||fresh()}catch(e){S=fresh()}
+S=Object.assign(fresh(),S);
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+
+/* ---------------- HELPERS ---------------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const en=(list,label)=>(list.find(x=>x[0]===label)||list[0])[1];
+const names=()=>S.chars.map((c,i)=>c.name.trim()||`Karakter ${i+1}`);
+function joinNames(arr){if(!arr.length)return"the characters";if(arr.length===1)return arr[0];return arr.slice(0,-1).join(", ")+" and "+arr[arr.length-1]}
+function fill(t){const n=names();const th=currentTheme();
+  return t.replaceAll("{A}",n[0]||"the main character").replaceAll("{B}",n[1]||"a friend").replaceAll("{ALL}",joinNames(n))
+   .replaceAll("{SET}",th.setting||"the world").replaceAll("{THEME}",th.name||"the story")}
+function currentTheme(){if(S.theme==="custom")return{name:S.customTheme.name.trim(),setting:S.customTheme.setting.trim()||S.customTheme.name.trim(),beats:GENERIC_BEATS};
+  const t=THEMES.find(x=>x.id===S.theme)||THEMES[0];return{name:t.name,setting:t.setting,beats:t.beats}}
+function styleObj(id){const s=STYLES.find(x=>x.id===id);if(id==="custom")return{...s,name:"Gaya sendiri",look:T(S.customStyle)||"unique custom art style",motion:"smooth animation consistent with the art style"};return s}
+function buildScenes(){const beats=currentTheme().beats;
+  S.scenes=beats.map((b,i)=>({text:fill(b),shot:i===0||i===beats.length-1?"Wide shot":(i%2?"Medium shot":"Close-up"),cam:i===0?"Drone dari atas":(i===beats.length-1?"Zoom out":(i%2?"Ikuti karakter":"Zoom in perlahan")),dialog:""}));save()}
+function T(x){const k=String(x||"").trim();return(S.autoEn&&S.tr[k])||k}
+function charDesc(c,i){const t=en(CHAR_TYPES,c.type);const parts=[t];if(c.age.trim())parts.push(T(c.age));if(c.look.trim())parts.push(T(c.look));if(c.outfit.trim())parts.push("wearing "+T(c.outfit));if(c.trait.trim())parts.push(T(c.trait)+" personality");
+  return`${c.name.trim()||"Character "+(i+1)} (${parts.join(", ")})`}
+function charsIn(text){const low=text.toLowerCase();const hit=S.chars.filter(c=>c.name.trim()&&low.includes(c.name.trim().toLowerCase()));return hit.length?hit:S.chars}
+
+/* ---------------- PROMPT BUILDERS ---------------- */
+const NEG_IMG="blurry, low quality, distorted face, extra limbs, extra fingers, deformed hands, text, watermark, logo, inconsistent character design, cropped head";
+const NEG_VID="morphing, flickering, character design changing between frames, distorted faces, extra limbs, jittery motion, text overlays, watermark";
+const short=()=>S.platform==="canva";
+const HEMAT_V="\nSingle continuous shot with one action only, no cuts. Subtle, controlled motion.";
+const RISKY_CAMS=["Orbit","Drone dari atas","Handheld"];
+function sceneWarnings(i){const sc=S.scenes[i];if(!S.hemat||!sc)return[];const w=[];const t=sc.text.toLowerCase();
+ const named=S.chars.filter(c=>c.name.trim()&&t.includes(c.name.trim().toLowerCase())).length;
+ if(named>2)w.push(`Ada ${named} karakter di adegan ini. Maksimal 2 supaya wajah dan baju tidak tertukar; sisanya jadikan latar atau hapus.`);
+ const seq=(t.match(/\b(then|after that|afterwards|finally|lalu|kemudian|setelah itu|akhirnya)\b/g)||[]).length;
+ const sentences=sc.text.split(/[.!?]+/).filter(s=>s.trim().split(/\s+/).length>2).length;
+ if(seq||sentences>2)w.push("Sepertinya ada lebih dari satu aksi. Klip 8 detik paling stabil dengan satu aksi; pecah jadi adegan terpisah.");
+ if(S.audio&&sc.dialog.trim()){const n=sc.dialog.replace(/[^\s:"“”]{1,20}\s*:/g," ").replace(/["“”]/g," ").trim().split(/\s+/).filter(Boolean).length;
+  if(n>15)w.push(`Dialog ${n} kata. Untuk klip 8 detik idealnya 8–15 kata, kalau lebih bisa terpotong atau diucapkan terlalu cepat.`)}
+ if(RISKY_CAMS.includes(sc.cam)&&i>0&&i<S.scenes.length-1)w.push(`Kamera "${sc.cam}" rawan membuat karakter berubah bentuk. Pakai untuk pembuka atau penutup saja, atau ganti ke Statis / Zoom in perlahan.`);
+ if(/\b(text|sign|signs|letters|writing|banner|tulisan|papan nama|spanduk)\b/.test(t))w.push("Tulisan di dalam gambar sering rusak. Tambahkan teks belakangan di Canva atau editor video.");
+ if(/\b(eat|eats|eating|drink|drinks|drinking|makan|minum)\b/.test(t))w.push("Adegan makan atau minum sering terlihat aneh. Tampilkan momen sebelum atau sesudahnya.");
+ if(/\b(crowd|many people|kerumunan|ramai|orang banyak)\b/.test(t))w.push("Kerumunan banyak orang yang bergerak rawan berantakan. Fokuskan ke 1–2 karakter utama.");
+ return w}
+function warnHTML(i){const w=sceneWarnings(i);return w.length?`<ul>${w.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}
+const ID_WORDS=/\b(yang|dan|sedang|dengan|sambil|bersama|melihat|berjalan|berlari|lalu|kemudian|sebuah|dari|tidak|sangat|mereka|sedih|senang|tersenyum|menangis|duduk|bermain|pergi|datang|ke|di)\b/g;
+const ID_VOCAB=new Set(("yang dan atau dengan sambil bersama sedang lagi akan sudah belum tidak bukan sangat agak lebih paling juga lalu kemudian setelah sebelum saat ketika karena supaya agar untuk dari ke di pada dalam luar atas bawah depan belakang samping dekat jauh ini itu sini sana dia mereka kami kita aku saya kamu ia nya "
++"sebuah seorang seekor sebuah para semua banyak sedikit beberapa tahun bulan hari pagi siang sore malam "
++"merah kuning hijau biru hitam putih coklat cokelat ungu jingga oranye abu emas perak muda tua terang gelap "
++"rambut kulit mata wajah pipi hidung mulut telinga tangan kaki badan tubuh tinggi pendek panjang kurus gendut gemuk keriting lurus ikal botak berponi poni kepang "
++"baju kaos kaus kemeja celana rok gaun jaket jilbab kerudung hijab sepatu sandal topi kacamata tas seragam sarung kalung gelang "
++"kecil besar imut lucu cantik ganteng tampan manis ramah pemalu berani ceria pintar nakal baik jahat sabar rajin malas penasaran ceroboh pemberani periang "
++"anak laki perempuan cowok cewek kakek nenek ayah ibu kakak adik teman guru kucing anjing burung ayam kelinci gajah harimau kancil kura "
++"berjalan berlari melompat duduk berdiri tidur bangun makan minum bermain menangis tertawa tersenyum melihat menatap memegang membawa memeluk melambai menari bernyanyi berbicara berteriak terbang berenang jatuh mencari menemukan membantu menolong pergi datang pulang masuk keluar naik turun "
++"senang sedih marah takut kaget terkejut bingung bahagia gembira capek lelah hutan pohon sungai laut pantai gunung desa kampung sawah rumah sekolah kelas jalan langit bulan bintang matahari hujan").split(/\s+/));
+const EN_VOCAB=new Set(("the a an and or with without while in on at of to from into onto under over behind near by for is are was were be being has have his her their its they she he it this that these those then very "
++"wearing wears hair eyes skin face cheeks shirt t-shirt shorts pants dress skirt jacket hoodie shoes sneakers hat glasses uniform scarf hijab "
++"years year old young little small big tall short long curly straight messy black white red yellow green blue brown purple orange pink gray grey golden dark light "
++"boy girl man woman cat dog bird friend friends "
++"walks walking runs running jumps jumping sits sitting stands standing looks looking smiles smiling laughs laughing cries crying holds holding waves waving plays playing finds discovers helps flies swims dances "
++"happy sad angry scared surprised curious cheerful brave shy kind clever funny friendly gentle playful personality").split(/\s+/));
+function needsTr(t){const words=String(t||"").toLowerCase().replace(/[^a-zà-ÿ\s-]/g," ").split(/\s+/).filter(Boolean);
+ const names=new Set(S.chars.map(c=>c.name.trim().toLowerCase()).filter(Boolean));let id=0,en=0;
+ for(const w of words){if(names.has(w))continue;
+  if(ID_VOCAB.has(w)||/^[a-z]{3,}nya$/.test(w)||/^(ber|ter|me[mn]g?|ny)[a-z]{3,}$/.test(w)&&!EN_VOCAB.has(w)&&!/(ing|ed|tion|ment|ly)$/.test(w))id++;
+  else if(EN_VOCAB.has(w)||/(ing|ed|tion|ness|ly)$/.test(w))en++}
+ return id>0&&id>=en}
+function isIndo(t){return needsTr(t)}
+function updateIdNote(){const el=$("#idnote");if(!el)return;if(S.autoEn){el.hidden=true;return}const idx=S.scenes.map((s,i)=>isIndo(s.text)?i+1:0).filter(Boolean);
+ el.hidden=!idx.length;if(idx.length)$("#idtext").textContent=`Adegan ${idx.join(", ")} masih berbahasa Indonesia. Terjemahkan supaya Flow lebih akurat membaca aksi dan ekspresinya. Dialog tetap bahasa Indonesia.`}
+function updateSum(){const el=$("#hsum");if(!el)return;const n=S.scenes.reduce((a,_,i)=>a+sceneWarnings(i).length,0);
+ el.className="hemat-sum"+(n?"":" ok");el.textContent=n?`Mode hemat kredit: ${n} peringatan di adegan. Perbaiki dulu supaya tidak banyak generate ulang.`:"Mode hemat kredit: semua adegan aman untuk di-generate."}
+
+function promptT2I(st,sc,i){const th=currentTheme();const cs=charsIn(sc.text).map(c=>charDesc(c,S.chars.indexOf(c)));
+  if(short())return`${st.look.split(",").slice(0,3).join(",")}. ${T(sc.text)}, in ${T(th.setting)}. ${cs.join("; ")}. ${en(LIGHTS,S.light)}, ${en(MOODS,S.mood)} mood. ${S.ar}.${S.hemat?" No text.":""}`;
+  let p=`${en(SHOTS,sc.shot)}, ${st.look}.\n\nScene ${i+1}: ${T(sc.text)}.\nSetting: ${T(th.setting)}.\nCharacters: ${cs.join("; ")}.\nLighting & mood: ${en(LIGHTS,S.light)}, ${en(MOODS,S.mood)} atmosphere.\nComposition: clear readable staging, characters as the focal point, cinematic framing, aspect ratio ${S.ar}.\nKeep every character's face, hair, colors and outfit exactly consistent across all scenes.${S.hemat?"\nNo text, letters or signs anywhere in the image.":""}`;
+  return p}
+function promptI2V(st,sc,i){const cs=charsIn(sc.text);
+  let p=short()
+   ?`Animate this image: ${T(sc.text)}. ${en(CAMS,sc.cam)}. ${st.motion}. ${en(MOODS,S.mood)} mood.`
+   :`Animate this image (scene ${i+1}).\nAction: ${T(sc.text)}, with natural believable movement and clear emotions.\nCamera: ${en(CAMS,sc.cam)}.\nStyle & motion: ${st.motion}, keep the exact art style of the input image.\nMood: ${en(MOODS,S.mood)}.\nConsistency: keep ${joinNames(cs.map(c=>c.name.trim()||"the character"))} identical to the reference image, no morphing or design changes.`;
+  if(S.hemat)p+=HEMAT_V;if(S.audio)p+=audioLine(sc,cs);return p}
+function promptT2V(st,sc,i){const th=currentTheme();const cs=charsIn(sc.text).map(c=>charDesc(c,S.chars.indexOf(c)));
+  let p=`${en(SHOTS,sc.shot)}, ${st.look}.\nScene ${i+1}: ${T(sc.text)}, in ${T(th.setting)}.\nCharacters: ${cs.join("; ")}.\nCamera: ${en(CAMS,sc.cam)}. Motion: ${st.motion}.\nLighting & mood: ${en(LIGHTS,S.light)}, ${en(MOODS,S.mood)}. Aspect ratio ${S.ar}.`;
+  if(S.hemat)p+=HEMAT_V;if(S.audio)p+=audioLine(sc,charsIn(sc.text));return p}
+function audioLine(sc,cs){let a=`\nAudio: ${en(MOODS,S.mood)} background music, natural ambient sounds of the scene`;
+  const d=sc.dialog.trim();if(d){const who=(cs[0]&&cs[0].name.trim())||"The character";
+    a+=d.includes(":")?`. Dialogue: ${d}`:`. ${who} says: "${d}"`}return a+"."}
+function promptSheet(st,c,i){return`Character reference sheet, ${st.look}. ${charDesc(c,i)}. Full body turnaround showing front view, three-quarter view, side view and back view, plus 3 facial expressions (happy, surprised, sad). Neutral standing pose, plain white background, even lighting, no text.`}
+
+/* ---------------- RENDER ---------------- */
+function renderSteps(){$("#steps").innerHTML=STEPS.map((s,i)=>`<button class="${i===S.step?"on":""} ${i<S.step?"done":""}" data-go="${i}" ${i===S.step?'aria-current="step"':""}><span class="n">${i<S.step?"✓":i+1}</span>${s}</button>`).join("")}
+function tile(on,em,name,desc,attr){return`<button class="tile ${on?"on":""}" ${attr} aria-pressed="${on}"><span class="em">${em}</span><b>${esc(name)}</b><span>${esc(desc)}</span></button>`}
+function seg(list,cur,key){return`<div class="seg">${list.map(o=>`<button class="${o===cur?"on":""}" data-set="${key}" data-val="${esc(o)}">${esc(o)}</button>`).join("")}</div>`}
+
+const VIEWS=[
+()=>`<section class="panel"><h2>Mau bikin prompt apa saja?</h2><p class="lead">Pilih jenis prompt yang dibutuhkan dan tempat kamu akan memakainya. Alur paling stabil untuk animasi: buat gambar tiap adegan dulu, lalu hidupkan jadi video.</p>
+ <div class="group"><span class="t">Jenis prompt</span><div class="tiles">
+  ${tile(S.modes.t2i,"🖼️","Text → Image","Gambar kunci tiap adegan",'data-mode="t2i"')}
+  ${tile(S.modes.i2v,"🎥","Image → Video","Menghidupkan gambar jadi klip",'data-mode="i2v"')}
+  ${tile(S.modes.t2v,"⚡","Text → Video","Langsung jadi video tanpa gambar",'data-mode="t2v"')}
+ </div></div>
+ <div class="group"><span class="t">Dipakai di</span>${seg(["Google Flow","Canva"],S.platform==="flow"?"Google Flow":"Canva","platform")}
+  <p class="hint">${S.platform==="flow"?"Prompt lengkap dan detail, termasuk audio & dialog.":"Prompt dibuat lebih ringkas, cocok untuk kolom prompt Canva yang pendek."}</p></div>
+ <div class="group"><span class="t">Rasio layar</span>${seg(["16:9","9:16","1:1"],S.ar,"ar")}<p class="hint">16:9 untuk YouTube, 9:16 untuk Reels/TikTok/Shorts.</p></div>
+ <div class="group"><label class="check"><input type="checkbox" id="autoEn" ${S.autoEn?"checked":""}> <span><b>Prompt akhir otomatis bahasa Inggris</b></span></label>
+  <p class="hint">Isi adegan, karakter, dan tema pakai bahasa Indonesia saja. Saat membuka halaman Hasil, AI menerjemahkannya ke dalam prompt bahasa Inggris. Isianmu sendiri tidak diubah, dan dialog tetap bahasa Indonesia.</p></div>
+ <div class="group"><label class="check"><input type="checkbox" id="hemat" ${S.hemat?"checked":""}> <span><b>Mode hemat kredit</b> (disarankan untuk Google Flow gratis)</span></label>
+  <p class="hint">Memberi peringatan untuk adegan yang rawan gagal dan membuat prompt lebih aman, supaya jarang perlu generate ulang.</p>
+  ${S.hemat&&S.modes.t2v?`<p class="hint" style="color:var(--danger)">Text → Video paling boros kredit karena tiap percobaan langsung jadi video. Lebih hemat pakai Text → Image lalu Image → Video.</p>`:""}</div>
+</section>`,
+
+()=>`<section class="panel"><h2>Pilih gaya visual</h2><p class="lead">Boleh pilih lebih dari satu. Setiap gaya akan dapat set prompt sendiri, jadi kamu bisa membandingkan hasilnya.</p>
+ <div class="tiles">${STYLES.map(s=>tile(S.styles.includes(s.id),s.em,s.name,s.desc,`data-style="${s.id}"`)).join("")}</div>
+ ${S.hemat&&S.styles.length>1?`<p class="hint">Mode hemat: tiap gaya diuji di adegan 1 dulu. Setelah ketemu yang cocok, jadikan gaya final di halaman Hasil.</p>`:""}
+ ${S.styles.includes("custom")?`<div class="group"><label class="t" for="cstyle">Deskripsi gaya sendiri (bahasa Inggris lebih akurat)</label><textarea id="cstyle" data-bind="customStyle" placeholder="contoh: retro 90s cartoon, thick outlines, grainy VHS texture, saturated colors">${esc(S.customStyle)}</textarea></div>`:""}
+ <div class="group row">
+  <div><span class="t">Suasana</span>${seg(MOODS.map(m=>m[0]),S.mood,"mood")}</div>
+  <div><span class="t">Pencahayaan</span>${seg(LIGHTS.map(m=>m[0]),S.light,"light")}</div>
+ </div>
+</section>`,
+
+()=>`<section class="panel"><h2>Pilih tema cerita</h2><p class="lead">Tema menentukan latar tempat dan alur adegan awal. Semua adegan masih bisa diubah di langkah Adegan.</p>
+ <div class="tiles">${THEMES.map(t=>tile(S.theme===t.id,t.em,t.name,t.id==="custom"?"Tulis latar & ide sendiri":t.beats.length+" adegan siap pakai",`data-theme-pick="${t.id}"`)).join("")}</div>
+ ${S.theme==="custom"?`<div class="group"><div class="field"><label for="ctn">Nama / ide tema</label><input type="text" id="ctn" data-bind="customTheme.name" value="${esc(S.customTheme.name)}" placeholder="contoh: Petualangan mencari harta karun di pulau"></div>
+ <div class="field" style="margin-top:10px"><label for="cts">Deskripsi latar tempat (bahasa Inggris lebih akurat)</label><textarea id="cts" data-bind="customTheme.setting" placeholder="contoh: a small tropical island with a pirate shipwreck, palm trees and a hidden cave">${esc(S.customTheme.setting)}</textarea></div>
+ <div style="margin-top:10px"><button class="ai" id="aiSetting">✨ Buatkan deskripsi latar dengan AI</button><p class="hint">AI menulis latar dalam bahasa Inggris berdasarkan ide temamu.</p></div></div>`:
+ `<p class="hint" style="margin-top:14px">Latar: ${esc(currentTheme().setting)}</p>`}
+</section>`,
+
+()=>`<section class="panel"><h2>Siapa saja karakternya?</h2><p class="lead">Semakin spesifik ciri fisik dan pakaian, semakin konsisten karakter dari adegan ke adegan. Isi deskripsi dalam bahasa Inggris agar model membaca lebih tepat.</p>
+ ${S.chars.map((c,i)=>`<div class="char">
+  <div class="char-head"><div class="avatar" style="background:${COLORS[i%COLORS.length]}">${esc((c.name.trim()||"?")[0].toUpperCase())}</div>
+   <input type="text" data-char="${i}" data-k="name" value="${esc(c.name)}" placeholder="Nama karakter" aria-label="Nama karakter">
+   ${S.chars.length>1?`<button class="x" data-del="${i}">Hapus</button>`:""}</div>
+  <div class="row">
+   <div class="field"><label>Jenis</label><select data-char="${i}" data-k="type">${CHAR_TYPES.map(t=>`<option ${t[0]===c.type?"selected":""}>${t[0]}</option>`).join("")}</select></div>
+   <div class="field"><label>Umur / ukuran</label><input type="text" data-char="${i}" data-k="age" value="${esc(c.age)}" placeholder="7 years old / small fluffy"></div>
+  </div>
+  <div class="field" style="margin-top:8px"><label>Ciri fisik ${c.type==="Hewan"?"(sebutkan jenis hewannya)":""}</label><input type="text" data-char="${i}" data-k="look" value="${esc(c.look)}" placeholder="${c.type==="Hewan"?"orange cat with white paws, green eyes":"long black hair in ponytail, light tan skin, freckles"}"></div>
+  <div class="row" style="margin-top:8px">
+   <div class="field"><label>Pakaian / aksesori</label><input type="text" data-char="${i}" data-k="outfit" value="${esc(c.outfit)}" placeholder="pink hijab, white school uniform"></div>
+   <div class="field"><label>Sifat</label><input type="text" data-char="${i}" data-k="trait" value="${esc(c.trait)}" placeholder="brave, a bit clumsy"></div>
+  </div></div>`).join("")}
+ <button class="add" id="addChar">+ Tambah karakter</button>
+ <div class="aibox"><button class="ai" id="aiChars">✨ Rapikan &amp; terjemahkan dengan AI</button>
+  <p class="hint">Boleh isi pakai bahasa Indonesia seadanya. AI akan menerjemahkan dan menambahkan detail visual supaya karakter konsisten.</p></div>
+</section>`,
+
+()=>{if(!S.scenes.length)buildScenes();return`<section class="panel"><h2>Susun adegan</h2><p class="lead">Adegan sudah diisi otomatis dari tema dan nama karakter. Ubah kalimatnya sesukamu, atau minta AI menyusun alur cerita baru. Satu adegan = satu klip video (sekitar 8 detik di Flow).</p>
+ <div class="aibox"><div class="field"><label for="idea">Ide cerita (opsional, boleh bahasa Indonesia)</label><textarea id="idea" data-bind="storyIdea" placeholder="contoh: Kiko kehilangan kucingnya lalu mencarinya keliling kampung bersama Mira">${esc(S.storyIdea)}</textarea></div>
+  <div class="row" style="margin-top:10px"><div class="field"><label for="cnt">Jumlah adegan</label><select id="cnt" data-bind="sceneCount">${[3,4,5,6,7,8,10,12].map(n=>`<option ${String(n)===String(S.sceneCount)?"selected":""}>${n}</option>`).join("")}</select></div>
+  <div><button class="ai" id="aiScenes">✨ Buat alur adegan dengan AI</button></div></div></div>
+ <div class="idnote" id="idnote" hidden><span id="idtext"></span><button class="ai" id="aiTranslate">🌐 Terjemahkan ke bahasa Inggris</button></div>
+ ${S.hemat?`<div class="hemat-sum" id="hsum"></div>`:""}
+ <div class="toolbar"><button class="ghost" id="rebuild">Isi ulang dari tema</button><button class="ghost" id="addScene">+ Tambah adegan</button>
+  <label class="check"><input type="checkbox" id="audio" ${S.audio?"checked":""}> Sertakan audio & dialog</label>
+  <label class="check"><input type="checkbox" id="neg" ${S.neg?"checked":""}> Sertakan negative prompt</label></div>
+ ${S.scenes.map((sc,i)=>`<div class="scene"><div class="num">${i+1}</div><div>
+  <textarea data-scene="${i}" data-k="text" aria-label="Isi adegan ${i+1}">${esc(sc.text)}</textarea>
+  <div class="opts">
+   <div class="field"><label>Jenis shot (gambar)</label><select data-scene="${i}" data-k="shot">${SHOTS.map(o=>`<option ${o[0]===sc.shot?"selected":""}>${o[0]}</option>`).join("")}</select></div>
+   <div class="field"><label>Gerak kamera (video)</label><select data-scene="${i}" data-k="cam">${CAMS.map(o=>`<option ${o[0]===sc.cam?"selected":""}>${o[0]}</option>`).join("")}</select></div>
+  </div>
+  ${S.audio?`<div class="field" style="margin-top:8px"><label>Dialog (opsional)</label><input type="text" data-scene="${i}" data-k="dialog" value="${esc(sc.dialog)}" placeholder='Wow, lihat itu! — atau — Kiko: "Ayo!" Mira: "Tunggu aku!"'></div>`:""}
+  <div class="warn" id="w${i}">${warnHTML(i)}</div>
+  ${S.scenes.length>1?`<button class="x" data-delscene="${i}" style="margin-top:6px">Hapus adegan</button>`:""}
+ </div></div>`).join("")}
+</section>`},
+
+()=>{if(TR.busy)return`<section class="panel"><h2>Prompt siap pakai</h2><div class="aibox" style="display:flex;gap:10px;align-items:center"><span class="spin"></span> Menerjemahkan isianmu ke bahasa Inggris…</div></section>`;
+ if(!S.styles.includes(S.activeStyle))S.activeStyle=S.styles[0];const st=styleObj(S.activeStyle);
+ const block=(tag,cls,title,text,id,kind)=>{const key=S.activeStyle+"|"+id;SRC[id]={text,kind};const pol=S.polished[key];const isPol=pol&&pol.src===text;
+  const aiBtn=kind?(isPol?`<button class="ai sm" data-unpolish="${id}">Kembalikan versi asli</button>`:`<button class="ai sm" data-polish="${id}">✨ Perbaiki</button>`):"";
+  return`<div class="pblock"><div class="ph"><span class="tag ${cls}">${title}${isPol?" · ✨ AI":""}</span><div class="btns">${aiBtn}<button class="copy" data-copy="${id}">Salin</button></div></div><pre class="p" id="${id}">${esc(isPol?pol.out:text)}</pre></div>`};
+ let html=`<section class="panel"><h2>Prompt siap pakai</h2><p class="lead">${S.scenes.length} adegan × ${S.styles.length} gaya. Pilih gaya di bawah, lalu salin prompt per adegan.</p>
+ ${S.autoEn&&TR.err?`<div class="warn" style="margin-bottom:12px">Terjemahan otomatis gagal: ${esc(TR.err)} Prompt di bawah masih memakai isian aslimu. <button class="ai sm" id="retryTr">Coba lagi</button></div>`:""}
+ ${S.autoEn&&!TR.err?(()=>{const n=trSources().filter(k=>S.tr[k]&&S.tr[k]!==k).length;
+   return n?`<p class="hint" style="margin-top:-8px">${n} isian berbahasa Indonesia diterjemahkan otomatis; isian yang sudah bahasa Inggris dibiarkan. Isian aslimu tidak diubah. <button class="x" id="retryTr" style="color:var(--teal)">Terjemahkan ulang</button></p>`
+   :`<p class="hint" style="margin-top:-8px">Semua isian sudah bahasa Inggris, jadi tidak ada yang diterjemahkan.</p>`})():""}
+ <div class="toolbar"><button class="copy" id="copyAll">Salin semua prompt gaya ini</button></div>
+ <div class="styletabs seg">${S.styles.map(id=>{const s=styleObj(id);return`<button class="${id===S.activeStyle?"on":""}" data-tab="${id}">${s.em} ${esc(s.name)}${S.hemat&&S.styles.length>1&&id===S.finalStyle?" ⭐":""}</button>`}).join("")}</div>`;
+ html+=`<div class="frame"><div class="bar"><h3>Referensi karakter</h3><small>Buat dulu, pakai sebagai acuan</small></div><div class="body">
+  ${S.chars.map((c,i)=>block("", "", "Sheet: "+(c.name.trim()||"Karakter "+(i+1)),promptSheet(st,c,i),`sh${i}`,"sheet")).join("")}</div></div>`;
+ const testOnly=S.hemat&&S.styles.length>1&&S.finalStyle!==S.activeStyle;
+ if(testOnly)html+=`<div class="aibox"><b>Mode uji gaya.</b> Gaya ini hanya ditampilkan untuk adegan 1, supaya kredit tidak habis untuk mencoba semua gaya di semua adegan. Kalau hasil adegan 1 sudah cocok, jadikan gaya final.<div style="margin-top:8px"><button class="ai" data-final="${S.activeStyle}">⭐ Jadikan gaya final</button></div></div>`;
+ else if(S.hemat&&S.styles.length>1)html+=`<p class="hint">⭐ Ini gaya final, semua adegan ditampilkan. <button class="x" data-final="">Batalkan</button></p>`;
+ (testOnly?S.scenes.slice(0,1):S.scenes).forEach((sc,i)=>{html+=`<div class="frame"><div class="bar"><h3>Adegan ${i+1}</h3><small>${esc(sc.shot)} · ${esc(sc.cam)}</small></div><div class="body">
+  ${S.modes.t2i?block("","","Text → Image",promptT2I(st,sc,i),`t${i}`,"image"):""}
+  ${S.modes.i2v?block("","v","Image → Video",promptI2V(st,sc,i),`v${i}`,"video"):""}
+  ${S.modes.t2v?block("","v","Text → Video",promptT2V(st,sc,i),`x${i}`,"t2v"):""}
+ </div></div>`});
+ if(S.neg)html+=`<div class="frame"><div class="bar"><h3>Negative prompt</h3><small>Tempel jika platform menyediakan kolomnya</small></div><div class="body">
+  ${S.modes.t2i?block("","n","Untuk gambar",NEG_IMG,"ni"):""}${S.modes.i2v||S.modes.t2v?block("","n","Untuk video",NEG_VID+(S.hemat?", scene cuts, multiple actions in one clip":""),"nv"):""}</div></div>`;
+ html+=S.platform==="flow"?`<div class="tips"><h3>Cara pakai di Google Flow</h3><ol>
+  <li>Generate gambar <b>sheet karakter</b> dulu, simpan yang paling cocok sebagai acuan (ingredient).</li>
+  <li>Buat gambar tiap adegan dengan prompt Text → Image, sertakan gambar karakter sebagai referensi agar wajah dan baju konsisten.</li>
+  <li>Pakai mode dari gambar ke video (frame awal), tempel prompt Image → Video untuk adegan yang sama.</li>
+  <li>Tambahkan klip ke scene builder sesuai urutan nomor adegan, lalu sambung jadi satu film.</li>
+  <li>Kalau karakter berubah bentuk, perpendek aksinya atau pilih kamera Statis.</li>
+  ${S.hemat?`<li>Kalau tersedia pilihan model Fast dan Quality, cek gerakan dulu dengan Fast, lalu render ulang dengan Quality hanya untuk adegan yang sudah pas.</li><li>Ulangi gambar sampai benar-benar cocok sebelum dijadikan video, karena gambar jauh lebih murah daripada video.</li>`:""}</ol></div>`
+ :`<div class="tips"><h3>Cara pakai di Canva</h3><ol>
+  <li>Buka fitur generate gambar AI di Canva, tempel prompt Text → Image per adegan dengan rasio ${S.ar}.</li>
+  <li>Untuk video, pakai fitur generate video AI dan tempel prompt Image → Video atau Text → Video.</li>
+  <li>Susun semua klip di timeline video Canva sesuai nomor adegan, lalu tambah musik, teks dan transisi.</li>
+  <li>Prompt sudah dibuat ringkas; kalau hasil kurang detail, pindah ke mode Google Flow untuk versi lengkap.</li></ol></div>`;
+ return html+`</section>`}
+];
+
+function render(){renderSteps();$("#view").innerHTML=VIEWS[S.step]();updateSum();updateIdNote();
+ $("#back").disabled=S.step===0;$("#next").textContent=S.step===STEPS.length-1?"Edit adegan":S.step===STEPS.length-2?"Buat prompt":"Lanjut";
+ $("#info").textContent=`Langkah ${S.step+1} dari ${STEPS.length}`;save()}
+
+function validate(){const e=[];
+ if(S.step===0&&!Object.values(S.modes).some(Boolean))e.push("Pilih minimal satu jenis prompt.");
+ if(S.step===1&&!S.styles.length)e.push("Pilih minimal satu gaya.");
+ if(S.step===1&&S.styles.includes("custom")&&!S.customStyle.trim())e.push("Tulis deskripsi gaya sendiri, atau batalkan pilihan Gaya sendiri.");
+ if(S.step===2&&S.theme==="custom"&&!S.customTheme.name.trim())e.push("Tulis nama atau ide tema barumu.");
+ if(S.step===3&&!S.chars.some(c=>c.name.trim()))e.push("Beri nama minimal satu karakter.");
+ if(S.step===4&&!S.scenes.some(s=>s.text.trim()))e.push("Isi minimal satu adegan.");
+ const old=$("#view .err");if(old)old.remove();
+ if(e.length){const p=document.createElement("p");p.className="err";p.textContent=e[0];$("#view .panel").appendChild(p);return false}return true}
+
+function go(n){if(n>S.step){for(let s=S.step;s<n;s++){if(!validate())return;S.step++} }else S.step=n;render();window.scrollTo({top:0});if(S.step===STEPS.length-1)autoTranslate()}
+
+/* ---------------- AI ---------------- */
+const SRC={};
+function toast(msg,bad){const t=$("#toast");t.textContent=msg;t.className="toast"+(bad?" bad":"");t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,bad?6000:2600)}
+async function ai(task,data,btn){
+ const old=btn?btn.innerHTML:"";if(btn){btn.disabled=true;btn.innerHTML='<span class="spin"></span> Sedang diproses…'}
+ try{
+  if(location.protocol==="file:")throw new Error("Fitur AI baru aktif setelah di-deploy ke Vercel atau dijalankan dengan \"vercel dev\".");
+  let code="";try{code=localStorage.getItem(KEY+":code")||""}catch(e){}
+  const send=c=>fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json","x-access-code":c},body:JSON.stringify({task,data})});
+  let r=await send(code);
+  if(r.status===401){const c=prompt("Masukkan kode akses untuk memakai fitur AI:");if(!c)throw new Error("Kode akses dibutuhkan untuk fitur AI.");
+   try{localStorage.setItem(KEY+":code",c)}catch(e){}r=await send(c);if(r.status===401){try{localStorage.removeItem(KEY+":code")}catch(e){}}}
+  const j=await r.json().catch(()=>({}));
+  if(r.status===404)throw new Error("Endpoint /api/generate tidak ditemukan. Pastikan folder api ikut ter-deploy.");
+  if(!r.ok)throw new Error(j.error||("Permintaan gagal ("+r.status+")."));
+  return j.result||{};
+ }finally{if(btn){btn.disabled=false;btn.innerHTML=old}}
+}
+async function runAI(id,btn){
+ try{
+  if(id==="aiSetting"){if(!S.customTheme.name.trim())return toast("Tulis dulu nama atau ide temanya.",true);
+   const r=await ai("setting",{name:S.customTheme.name,setting:S.customTheme.setting},btn);
+   if(r.setting){S.customTheme.setting=r.setting;S.scenes=[];render();toast("Deskripsi latar sudah dibuat.")}}
+  if(id==="aiChars"){const r=await ai("characters",{chars:S.chars},btn);
+   if(Array.isArray(r.chars)){r.chars.forEach((c,i)=>{if(!S.chars[i])return;["age","look","outfit","trait"].forEach(k=>{if(typeof c[k]==="string")S.chars[i][k]=c[k]})});render();toast("Deskripsi karakter sudah dirapikan.")}}
+  if(id==="aiTranslate"){const idx=S.scenes.map((s,i)=>isIndo(s.text)?i:-1).filter(i=>i>-1);if(!idx.length)return;
+   const r=await ai("translate",{texts:idx.map(i=>S.scenes[i].text),names:S.chars.map(c=>c.name),hemat:S.hemat},btn);
+   if(Array.isArray(r.texts)){r.texts.forEach((t,k)=>{if(typeof t==="string"&&t.trim()&&idx[k]!==undefined)S.scenes[idx[k]].text=t.trim()});render();toast(idx.length+" adegan sudah diterjemahkan.")}}
+  if(id==="aiScenes"){if(S.scenes.some(s=>s.text.trim())&&!confirm("Ganti semua adegan dengan alur buatan AI?"))return;
+   const th=currentTheme();
+   const r=await ai("scenes",{theme:th.name,setting:th.setting,mood:en(MOODS,S.mood),chars:S.chars.map(charDesc),count:S.sceneCount,idea:S.storyIdea,hemat:S.hemat},btn);
+   if(Array.isArray(r.scenes)&&r.scenes.length){S.scenes=r.scenes.map(s=>({text:s.text||"",shot:s.shot||"Medium shot",cam:s.cam||"Statis",dialog:s.dialog||""}));if(r.scenes.some(s=>s.dialog))S.audio=true;render();toast(r.scenes.length+" adegan baru dari AI.")}}
+ }catch(e){toast(e.message,true)}
+}
+async function polish(id,btn){const src=SRC[id];if(!src)return;
+ try{const r=await ai("polish",{kind:src.kind,prompt:src.text,platform:S.platform,hemat:S.hemat},btn);
+  if(r.prompt){S.polished[S.activeStyle+"|"+id]={src:src.text,out:r.prompt};render();toast("Prompt sudah diperbaiki AI.")}}
+ catch(e){toast(e.message,true)}}
+
+/* ---------------- AUTO TRANSLATE ---------------- */
+const TR={busy:false,err:""};
+function trSources(){const a=[];S.scenes.forEach(s=>a.push(s.text));
+ S.chars.forEach(c=>["age","look","outfit","trait"].forEach(k=>a.push(c[k])));
+ if(S.theme==="custom")a.push(currentTheme().setting);
+ if(S.styles.includes("custom"))a.push(S.customStyle);
+ return[...new Set(a.map(x=>String(x||"").trim()).filter(Boolean))]}
+async function autoTranslate(force){if(!S.autoEn||TR.busy)return;
+ const all=trSources();const need=all.filter(x=>needsTr(x)&&(force||!(x in S.tr)));
+ const keep={};all.forEach(k=>{if(k in S.tr)keep[k]=S.tr[k]});S.tr=keep;save();
+ if(!need.length){if(TR.err){TR.err="";render()}return}
+ TR.busy=true;TR.err="";render();
+ try{const r=await ai("fields",{texts:need,names:S.chars.map(c=>c.name),hemat:S.hemat});
+  if(!Array.isArray(r.texts))throw new Error("Respons terjemahan tidak lengkap.");
+  need.forEach((k,i)=>{const v=r.texts[i];S.tr[k]=(typeof v==="string"&&v.trim())?v.trim():k});save()}
+ catch(e){TR.err=e.message}
+ finally{TR.busy=false;render()}}
+
+/* ---------------- EVENTS ---------------- */
+function setPath(path,val){const k=path.split(".");let o=S;while(k.length>1)o=o[k.shift()];o[k[0]]=val;save()}
+let themeChanged=false;
+document.addEventListener("click",e=>{const b=e.target.closest("button,[data-go]");if(!b)return;const d=b.dataset;
+ if(d.go!==undefined){const n=+d.go;if(n<=S.step)go(n);else go(n);return}
+ if(d.mode){S.modes[d.mode]=!S.modes[d.mode];render();return}
+ if(d.set){if(d.set==="platform")S.platform=d.val==="Canva"?"canva":"flow";else S[d.set]=d.val;render();return}
+ if(d.style){const i=S.styles.indexOf(d.style);i>-1?S.styles.splice(i,1):S.styles.push(d.style);render();return}
+ if(d.themePick){if(S.theme!==d.themePick){S.theme=d.themePick;S.scenes=[]}render();return}
+ if(d.del){S.chars.splice(+d.del,1);render();return}
+ if(d.delscene){S.scenes.splice(+d.delscene,1);render();return}
+ if(d.tab){S.activeStyle=d.tab;render();return}
+ if(d.final!==undefined){S.finalStyle=d.final;render();return}
+ if(d.copy){copyText($("#"+d.copy).textContent,b);return}
+ if(b.id==="retryTr"){autoTranslate(true);return}
+ if(d.polish){polish(d.polish,b);return}
+ if(d.unpolish){delete S.polished[S.activeStyle+"|"+d.unpolish];render();return}
+ if(b.id==="aiSetting"||b.id==="aiChars"||b.id==="aiScenes"||b.id==="aiTranslate"){runAI(b.id,b);return}
+ if(b.id==="addChar"){S.chars.push({name:"",type:"Anak perempuan",age:"",look:"",outfit:"",trait:""});render();
+   const ins=document.querySelectorAll('[data-k="name"]');ins[ins.length-1].focus();return}
+ if(b.id==="addScene"){S.scenes.push({text:"",shot:"Medium shot",cam:"Statis",dialog:""});render();return}
+ if(b.id==="rebuild"){if(confirm("Ganti semua adegan dengan versi otomatis dari tema? Perubahanmu akan hilang.")){buildScenes();render()}return}
+ if(b.id==="copyAll"){const t=[...document.querySelectorAll("#view .pblock")].map(p=>"### "+p.querySelector(".tag").textContent.replace(" · ✨ AI","")+"\n"+p.querySelector("pre").textContent).join("\n\n");copyText(t,b);return}
+ if(b.id==="next"){S.step===STEPS.length-1?go(4):go(S.step+1);return}
+ if(b.id==="back"){go(Math.max(0,S.step-1));return}
+ if(b.id==="resetBtn"){if(confirm("Hapus semua isian dan mulai dari awal?")){S=fresh();render()}return}
+});
+document.addEventListener("input",e=>{const t=e.target,d=t.dataset;
+ if(d.bind){setPath(d.bind,t.value);return}
+ if(d.char!==undefined){S.chars[+d.char][d.k]=t.value;save();
+   if(d.k==="name"){const av=t.parentElement.querySelector(".avatar");if(av)av.textContent=(t.value.trim()||"?")[0].toUpperCase()}
+   if(d.k==="type")render();return}
+ if(d.scene!==undefined){S.scenes[+d.scene][d.k]=t.value;save();const w=$("#w"+d.scene);if(w)w.innerHTML=warnHTML(+d.scene);updateSum();updateIdNote();return}
+});
+document.addEventListener("change",e=>{const t=e.target;
+ if(t.id==="audio"){S.audio=t.checked;render()} if(t.id==="neg"){S.neg=t.checked;save()} if(t.id==="hemat"){S.hemat=t.checked;render()} if(t.id==="autoEn"){S.autoEn=t.checked;render()}
+ if(t.dataset.k==="type")render()});
+
+function copyText(text,btn){const done=()=>{const o=btn.textContent;btn.textContent="Tersalin";btn.classList.add("ok");setTimeout(()=>{btn.textContent=o;btn.classList.remove("ok")},1400)};
+ const fallback=()=>{const ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();
+   try{document.execCommand("copy");done()}catch(err){alert("Salin manual: tekan lama teksnya lalu pilih Salin.")}ta.remove()};
+ if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done,fallback);else fallback()}
+
+render();if(S.step===STEPS.length-1)autoTranslate();
+</script>
+</body>
+</html>

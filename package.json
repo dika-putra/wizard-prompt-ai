@@ -1,0 +1,6 @@
+{
+  "name": "wizard-prompt-animasi",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=18" }
+}
