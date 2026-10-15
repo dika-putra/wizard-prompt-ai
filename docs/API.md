@@ -121,11 +121,12 @@ Hasil:
 Dipakai tombol **✨ Perbaiki** di halaman Hasil.
 
 ```json
-{ "kind": "image", "prompt": "...", "platform": "flow", "hemat": true }
+{ "kind": "video", "prompt": "...", "platform": "flow", "hemat": true, "keepStyle": false }
 ```
 
 - `kind`: `image`, `video` (image-to-video), `t2v`, atau `sheet`.
 - `platform`: `flow` (struktur lengkap, ±170 kata) atau `canva` (satu paragraf, ±70 kata).
+- `keepStyle` (opsional, boolean): `true` saat gaya **Ikuti gambar asli** dipakai. Model dilarang menambahkan kata-kata gaya, pencahayaan, atau warna, dan hanya memperbaiki gerakan, ekspresi, kamera, serta timing.
 
 Hasil:
 

@@ -118,6 +118,7 @@ Return JSON: {"setting":"..."}`;
 - ${short ? "Keep it compact: one paragraph, under 70 words." : "Keep the same labelled-line structure, under 170 words."}
 - English only (except quoted dialogue).
 ${d.hemat ? "- Credit-saving mode: keep exactly one action, do not add new actions, characters, text or signs, and keep camera motion simple." : ""}
+${d.keepStyle ? "- The user animates their OWN image: never add art-style, rendering, lighting or color words. Keep the instruction to preserve the input image's original look exactly. Improve only motion, expression, camera and timing." : ""}
 
 Prompt:
 ${str(d.prompt, 3000)}

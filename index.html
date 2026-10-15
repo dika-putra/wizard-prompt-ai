@@ -207,6 +207,8 @@ const STYLES=[
  {id:"wayang",em:"🪔",name:"Nuansa Wayang & Batik",desc:"Sentuhan budaya Indonesia",
   look:"Indonesian wayang kulit inspired illustration, intricate carved ornamental patterns, batik motifs, warm backlit golden glow, rich earthy colors",
   motion:"shadow-puppet style animation, graceful articulated limb movement, flickering warm backlight"},
+ {id:"original",em:"🖼️",name:"Ikuti gambar asli",desc:"Hanya gerak, gaya gambarmu tidak diubah",
+  look:"",motion:"natural, smooth and believable motion that matches the original image"},
  {id:"custom",em:"✏️",name:"Gaya sendiri",desc:"Tulis deskripsi gayamu",look:"",motion:""}
 ];
 
@@ -273,6 +275,7 @@ function fill(t){const n=names();const th=currentTheme();
    .replaceAll("{SET}",th.setting||"the world").replaceAll("{THEME}",th.name||"the story")}
 function currentTheme(){if(S.theme==="custom")return{name:S.customTheme.name.trim(),setting:S.customTheme.setting.trim()||S.customTheme.name.trim(),beats:GENERIC_BEATS};
   const t=THEMES.find(x=>x.id===S.theme)||THEMES[0];return{name:t.name,setting:t.setting,beats:t.beats}}
+const isOriginal=()=>S.styles.length===1&&S.styles[0]==="original";
 function styleObj(id){const s=STYLES.find(x=>x.id===id);if(id==="custom")return{...s,name:"Gaya sendiri",look:T(S.customStyle)||"unique custom art style",motion:"smooth animation consistent with the art style"};return s}
 function buildScenes(){const beats=currentTheme().beats;
   S.scenes=beats.map((b,i)=>({text:fill(b),shot:i===0||i===beats.length-1?"Wide shot":(i%2?"Medium shot":"Close-up"),cam:i===0?"Drone dari atas":(i===beats.length-1?"Zoom out":(i%2?"Ikuti karakter":"Zoom in perlahan")),dialog:""}));save()}
@@ -334,6 +337,11 @@ function promptT2I(st,sc,i){const th=currentTheme();const cs=charsIn(sc.text).ma
   let p=`${en(SHOTS,sc.shot)}, ${st.look}.\n\nScene ${i+1}: ${T(sc.text)}.\nSetting: ${T(th.setting)}.\nCharacters: ${cs.join("; ")}.\nLighting & mood: ${en(LIGHTS,S.light)}, ${en(MOODS,S.mood)} atmosphere.\nComposition: clear readable staging, characters as the focal point, cinematic framing, aspect ratio ${S.ar}.\nKeep every character's face, hair, colors and outfit exactly consistent across all scenes.${S.hemat?"\nNo text, letters or signs anywhere in the image.":""}`;
   return p}
 function promptI2V(st,sc,i){const cs=charsIn(sc.text);
+  if(st.id==="original"){const who=joinNames(cs.map(c=>c.name.trim()||"the character"));
+   let o=short()
+    ?`Animate this image: ${T(sc.text)}. ${en(CAMS,sc.cam)}. Keep the exact original style, colors and lighting of the image, do not restyle.`
+    :`Animate this image (scene ${i+1}).\nAction: ${T(sc.text)}, with natural believable movement and clear emotions.\nCamera: ${en(CAMS,sc.cam)}.\nStyle: preserve the exact art style, colors, lighting, textures and character design of the input image. Do not restyle, cartoonize, re-render or change the look in any way. Only add motion.\nMotion: ${st.motion}.\nMood: ${en(MOODS,S.mood)}.\nConsistency: keep ${who}, the background and all details identical to the input image, no morphing or design changes.`;
+   if(S.hemat)o+=HEMAT_V;if(S.audio)o+=audioLine(sc,cs);return o}
   let p=short()
    ?`Animate this image: ${T(sc.text)}. ${en(CAMS,sc.cam)}. ${st.motion}. ${en(MOODS,S.mood)} mood.`
    :`Animate this image (scene ${i+1}).\nAction: ${T(sc.text)}, with natural believable movement and clear emotions.\nCamera: ${en(CAMS,sc.cam)}.\nStyle & motion: ${st.motion}, keep the exact art style of the input image.\nMood: ${en(MOODS,S.mood)}.\nConsistency: keep ${joinNames(cs.map(c=>c.name.trim()||"the character"))} identical to the reference image, no morphing or design changes.`;
@@ -370,6 +378,7 @@ const VIEWS=[
 
 ()=>`<section class="panel"><h2>Pilih gaya visual</h2><p class="lead">Boleh pilih lebih dari satu. Setiap gaya akan dapat set prompt sendiri, jadi kamu bisa membandingkan hasilnya.</p>
  <div class="tiles">${STYLES.map(s=>tile(S.styles.includes(s.id),s.em,s.name,s.desc,`data-style="${s.id}"`)).join("")}</div>
+ ${isOriginal()?`<div class="aibox"><b>Ikuti gambar asli.</b> Untuk menghidupkan gambar milikmu sendiri tanpa mengubah gayanya. Wizard hanya membuat prompt Image → Video yang fokus ke gerakan, kamera, dan audio. Pilihan suasana tetap dipakai, pencahayaan mengikuti gambar asli. Isi adegan cukup dengan gerakannya saja.</div>`:""}
  ${S.hemat&&S.styles.length>1?`<p class="hint">Mode hemat: tiap gaya diuji di adegan 1 dulu. Setelah ketemu yang cocok, jadikan gaya final di halaman Hasil.</p>`:""}
  ${S.styles.includes("custom")?`<div class="group"><label class="t" for="cstyle">Deskripsi gaya sendiri (bahasa Inggris lebih akurat)</label><textarea id="cstyle" data-bind="customStyle" placeholder="contoh: retro 90s cartoon, thick outlines, grainy VHS texture, saturated colors">${esc(S.customStyle)}</textarea></div>`:""}
  <div class="group row">
@@ -438,18 +447,20 @@ const VIEWS=[
    :`<p class="hint" style="margin-top:-8px">Semua isian sudah bahasa Inggris, jadi tidak ada yang diterjemahkan.</p>`})():""}
  <div class="toolbar"><button class="copy" id="copyAll">Salin semua prompt gaya ini</button></div>
  <div class="styletabs seg">${S.styles.map(id=>{const s=styleObj(id);return`<button class="${id===S.activeStyle?"on":""}" data-tab="${id}">${s.em} ${esc(s.name)}${S.hemat&&S.styles.length>1&&id===S.finalStyle?" ⭐":""}</button>`}).join("")}</div>`;
- html+=`<div class="frame"><div class="bar"><h3>Referensi karakter</h3><small>Buat dulu, pakai sebagai acuan</small></div><div class="body">
+ const orig=st.id==="original";
+ if(orig)html+=`<p class="hint">Gaya Ikuti gambar asli: hanya prompt Image → Video yang ditampilkan. Unggah gambarmu sendiri sebagai frame awal di Flow atau Canva.</p>`;
+ if(!orig)html+=`<div class="frame"><div class="bar"><h3>Referensi karakter</h3><small>Buat dulu, pakai sebagai acuan</small></div><div class="body">
   ${S.chars.map((c,i)=>block("", "", "Sheet: "+(c.name.trim()||"Karakter "+(i+1)),promptSheet(st,c,i),`sh${i}`,"sheet")).join("")}</div></div>`;
  const testOnly=S.hemat&&S.styles.length>1&&S.finalStyle!==S.activeStyle;
  if(testOnly)html+=`<div class="aibox"><b>Mode uji gaya.</b> Gaya ini hanya ditampilkan untuk adegan 1, supaya kredit tidak habis untuk mencoba semua gaya di semua adegan. Kalau hasil adegan 1 sudah cocok, jadikan gaya final.<div style="margin-top:8px"><button class="ai" data-final="${S.activeStyle}">⭐ Jadikan gaya final</button></div></div>`;
  else if(S.hemat&&S.styles.length>1)html+=`<p class="hint">⭐ Ini gaya final, semua adegan ditampilkan. <button class="x" data-final="">Batalkan</button></p>`;
  (testOnly?S.scenes.slice(0,1):S.scenes).forEach((sc,i)=>{html+=`<div class="frame"><div class="bar"><h3>Adegan ${i+1}</h3><small>${esc(sc.shot)} · ${esc(sc.cam)}</small></div><div class="body">
-  ${S.modes.t2i?block("","","Text → Image",promptT2I(st,sc,i),`t${i}`,"image"):""}
+  ${S.modes.t2i&&!orig?block("","","Text → Image",promptT2I(st,sc,i),`t${i}`,"image"):""}
   ${S.modes.i2v?block("","v","Image → Video",promptI2V(st,sc,i),`v${i}`,"video"):""}
-  ${S.modes.t2v?block("","v","Text → Video",promptT2V(st,sc,i),`x${i}`,"t2v"):""}
+  ${S.modes.t2v&&!orig?block("","v","Text → Video",promptT2V(st,sc,i),`x${i}`,"t2v"):""}
  </div></div>`});
  if(S.neg)html+=`<div class="frame"><div class="bar"><h3>Negative prompt</h3><small>Tempel jika platform menyediakan kolomnya</small></div><div class="body">
-  ${S.modes.t2i?block("","n","Untuk gambar",NEG_IMG,"ni"):""}${S.modes.i2v||S.modes.t2v?block("","n","Untuk video",NEG_VID+(S.hemat?", scene cuts, multiple actions in one clip":""),"nv"):""}</div></div>`;
+  ${S.modes.t2i&&!orig?block("","n","Untuk gambar",NEG_IMG,"ni"):""}${S.modes.i2v||S.modes.t2v?block("","n","Untuk video",NEG_VID+(S.hemat?", scene cuts, multiple actions in one clip":"")+(orig?", style change, cartoon filter, color shift, re-rendered look":""),"nv"):""}</div></div>`;
  html+=S.platform==="flow"?`<div class="tips"><h3>Cara pakai di Google Flow</h3><ol>
   <li>Generate gambar <b>sheet karakter</b> dulu, simpan yang paling cocok sebagai acuan (ingredient).</li>
   <li>Buat gambar tiap adegan dengan prompt Text → Image, sertakan gambar karakter sebagai referensi agar wajah dan baju konsisten.</li>
@@ -469,9 +480,10 @@ function render(){renderSteps();$("#view").innerHTML=VIEWS[S.step]();updateSum()
  $("#back").disabled=S.step===0;$("#next").textContent=S.step===STEPS.length-1?"Edit adegan":S.step===STEPS.length-2?"Buat prompt":"Lanjut";
  $("#info").textContent=`Langkah ${S.step+1} dari ${STEPS.length}`;save()}
 
-function validate(){const e=[];
+function validate(){const e=[];if(S.step===4&&!S.scenes.length)buildScenes();
  if(S.step===0&&!Object.values(S.modes).some(Boolean))e.push("Pilih minimal satu jenis prompt.");
  if(S.step===1&&!S.styles.length)e.push("Pilih minimal satu gaya.");
+ if(S.step===1&&isOriginal()&&!S.modes.i2v)e.push("Gaya Ikuti gambar asli butuh Image → Video. Nyalakan di langkah Format.");
  if(S.step===1&&S.styles.includes("custom")&&!S.customStyle.trim())e.push("Tulis deskripsi gaya sendiri, atau batalkan pilihan Gaya sendiri.");
  if(S.step===2&&S.theme==="custom"&&!S.customTheme.name.trim())e.push("Tulis nama atau ide tema barumu.");
  if(S.step===3&&!S.chars.some(c=>c.name.trim()))e.push("Beri nama minimal satu karakter.");
@@ -516,7 +528,7 @@ async function runAI(id,btn){
  }catch(e){toast(e.message,true)}
 }
 async function polish(id,btn){const src=SRC[id];if(!src)return;
- try{const r=await ai("polish",{kind:src.kind,prompt:src.text,platform:S.platform,hemat:S.hemat},btn);
+ try{const r=await ai("polish",{kind:src.kind,prompt:src.text,platform:S.platform,hemat:S.hemat,keepStyle:S.activeStyle==="original"},btn);
   if(r.prompt){S.polished[S.activeStyle+"|"+id]={src:src.text,out:r.prompt};render();toast("Prompt sudah diperbaiki AI.")}}
  catch(e){toast(e.message,true)}}
 
@@ -545,7 +557,11 @@ document.addEventListener("click",e=>{const b=e.target.closest("button,[data-go]
  if(d.go!==undefined){const n=+d.go;if(n<=S.step)go(n);else go(n);return}
  if(d.mode){S.modes[d.mode]=!S.modes[d.mode];render();return}
  if(d.set){if(d.set==="platform")S.platform=d.val==="Canva"?"canva":"flow";else S[d.set]=d.val;render();return}
- if(d.style){const i=S.styles.indexOf(d.style);i>-1?S.styles.splice(i,1):S.styles.push(d.style);render();return}
+ if(d.style){const i=S.styles.indexOf(d.style);
+   if(i>-1)S.styles.splice(i,1);
+   else if(d.style==="original")S.styles=["original"];
+   else{S.styles=S.styles.filter(x=>x!=="original");S.styles.push(d.style)}
+   render();return}
  if(d.themePick){if(S.theme!==d.themePick){S.theme=d.themePick;S.scenes=[]}render();return}
  if(d.del){S.chars.splice(+d.del,1);render();return}
  if(d.delscene){S.scenes.splice(+d.delscene,1);render();return}

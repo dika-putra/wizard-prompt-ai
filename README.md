@@ -11,7 +11,7 @@ The app UI and the guides in `docs/` are in Indonesian.
 **6-step wizard**
 
 1. **Format**: prompt type (T2I, I2V, T2V), platform (Google Flow / Canva), aspect ratio (16:9, 9:16, 1:1), credit-saving mode, and automatic English prompts.
-2. **Style**: 12 ready-made styles (3D Cartoon Pixar, 2D Anime, Claymation, Chibi, Storybook, Wayang & Batik, and more) or your own. You can pick several styles at once, plus mood and lighting.
+2. **Style**: 12 ready-made styles (3D Cartoon Pixar, 2D Anime, Claymation, Chibi, Storybook, Wayang & Batik, and more), your own, or **Ikuti gambar asli** ("Follow the original image") to animate your own image without changing its style. You can pick several styles at once, plus mood and lighting.
 3. **Theme**: 10 ready-made themes (forest, Ramadan, village, outer space, fable, and more) or a custom one.
 4. **Characters**: any number, each with name, type, age, appearance, clothing, and personality.
 5. **Scenes**: filled in automatically from the theme and editable; shot type, camera movement, and dialogue per scene.
@@ -45,6 +45,7 @@ All non-AI features work without an API key, even when the file is opened straig
 │   ├── API.md          # Docs for the /api/generate endpoint
 │   └── PANDUAN.md      # Usage guide and Google Flow tips
 ├── .env.example        # Example environment variables
+├── CHANGELOG.md        # Change history
 ├── package.json
 └── README.md
 ```
@@ -124,3 +125,4 @@ vercel dev                   # http://localhost:3000
 
 - [docs/PANDUAN.md](docs/PANDUAN.md): usage guide and tips for saving credits in Google Flow (Indonesian).
 - [docs/API.md](docs/API.md): endpoint spec and how to add a new AI task (Indonesian).
+- [CHANGELOG.md](CHANGELOG.md): change history (Indonesian).

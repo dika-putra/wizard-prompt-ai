@@ -24,6 +24,18 @@
 
 Mode Canva menghasilkan prompt yang lebih ringkas.
 
+## Menghidupkan gambar sendiri (tanpa ubah gaya)
+
+Gunakan gaya ini jika kamu sudah punya gambar, misalnya foto, ilustrasi buatan sendiri, atau hasil generate sebelumnya, dan hanya ingin menambahkan gerakan.
+
+1. Di langkah **Format**, nyalakan **Image → Video**. Text → Image dan Text → Video boleh dimatikan karena tidak dipakai.
+2. Di langkah **Gaya**, pilih **🖼️ Ikuti gambar asli**. Pilihan ini tidak bisa digabung dengan gaya lain.
+3. Di langkah **Karakter**, cukup isi nama. Deskripsi tidak dimasukkan ke prompt video, jadi tidak akan bertabrakan dengan gambarmu.
+4. Di langkah **Adegan**, tulis gerakannya saja, misalnya "Kiko menoleh lalu tersenyum".
+5. Di halaman **Hasil**, hanya prompt Image → Video yang muncul. Unggah gambarmu sebagai frame awal, lalu tempel prompt-nya.
+
+Prompt dengan gaya ini secara tegas meminta model mempertahankan gaya, warna, pencahayaan, dan detail gambar input. Negative prompt video juga ditambah larangan perubahan gaya. Tombol **✨ Perbaiki** tidak akan menambahkan kata-kata gaya.
+
 ## Tips hemat kredit
 
 | Lakukan | Hindari |
