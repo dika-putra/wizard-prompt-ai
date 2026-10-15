@@ -28,4 +28,5 @@
 - Tombol **✨ Perbaiki** mempertahankan baris `Reference:` dan `Starting frame:`.
 
 ### Diperbaiki
+- Memilih hanya Image → Video tidak lagi menyembunyikan sheet karakter dan Text → Image. Sekarang keduanya ikut tampil di atas prompt video, karena video dibuat dari gambar adegan. Gaya Ikuti gambar asli tetap hanya Image → Video.
 - Melompat langsung ke langkah Hasil lewat stepper sebelum membuka langkah Adegan gagal dengan pesan "Isi minimal satu adegan". Adegan sekarang dibuat otomatis dari tema saat validasi.

@@ -441,6 +441,7 @@ function charsIn(text){const low=text.toLowerCase();const hit=S.chars.filter(c=>
 const NEG_IMG="blurry, low quality, distorted face, extra limbs, extra fingers, deformed hands, text, watermark, logo, inconsistent character design, cropped head";
 const NEG_VID="morphing, flickering, character design changing between frames, distorted faces, extra limbs, jittery motion, text overlays, watermark";
 const short=()=>S.platform==="canva";
+const t2iOn=()=>S.modes.t2i||S.modes.i2v; // ponytail: a video starts from a scene image, so Image → Video implies the sheet and Text → Image steps
 const HEMAT_V_BASE="\nSingle continuous shot with one action only, no cuts. Subtle, controlled motion.";
 const HEMAT_V_DANCE="\nSingle continuous shot, no cuts. Clear, controlled dance moves that stay in place, no spins or jumps.";
 const RISKY_CAMS=["Orbit","Drone dari atas","Handheld"];
@@ -505,7 +506,7 @@ function promptI2V(st,sc,i){const cs=charsIn(sc.text);
     ?`Animate this image: ${TS(sc.text)}. ${en(CAMS,sc.cam)}. Keep the exact original style, colors and lighting of the image, do not restyle.`
     :`Animate this image (scene ${i+1}).\nAction: ${TS(sc.text)}, with natural believable movement and clear emotions.\nCamera: ${en(CAMS,sc.cam)}.\nStyle: preserve the exact art style, colors, lighting, textures and character design of the input image. Do not restyle, cartoonize, re-render or change the look in any way. Only add motion.\nMotion: ${st.motion}.\nMood: ${en(MOODS,S.mood)}.\nConsistency: keep ${who}, the background and all details identical to the input image, no morphing or design changes.`;
    o+=danceLine()+profLine();if(S.hemat)o+=(danceObj()?HEMAT_V_DANCE:HEMAT_V_BASE);if(S.audio)o+=audioLine(sc,cs);return o}
-  const sf=S.modes.t2i?`Starting frame: the scene ${i+1} image generated with the Text → Image prompt.\n`:"";
+  const sf=t2iOn()?`Starting frame: the scene ${i+1} image generated with the Text → Image prompt.\n`:"";
   let p=short()
    ?`Animate this image: ${TS(sc.text)}. ${en(CAMS,sc.cam)}. ${st.motion}. ${en(MOODS,S.mood)} mood.`
    :`Animate this image (scene ${i+1}).\n${sf}Action: ${TS(sc.text)}, with natural believable movement and clear emotions.\nCamera: ${povFirst()?"first-person POV, ":""}${en(CAMS,sc.cam)}.\nStyle & motion: ${st.motion}, keep the exact art style of the input image.\nMood: ${en(MOODS,S.mood)}.\nConsistency: keep ${povFirst()&&!cs.length?"the scene, hands and uniform":joinNames(cs.map(c=>c.name.trim()||"the character"))} identical to the reference image, no morphing or design changes.`;
@@ -655,7 +656,7 @@ const VIEWS=[
  const testOnly=S.hemat&&S.styles.length>1&&S.finalStyle!==S.activeStyle;
  if(testOnly)html+=`<div class="aibox"><b>Mode uji gaya.</b> Gaya ini hanya ditampilkan untuk adegan 1, supaya kredit tidak habis untuk mencoba semua gaya di semua adegan. Kalau hasil adegan 1 sudah cocok, jadikan gaya final.<div style="margin-top:8px"><button class="ai" data-final="${S.activeStyle}">⭐ Jadikan gaya final</button></div></div>`;
  else if(S.hemat&&S.styles.length>1)html+=`<p class="hint">⭐ Ini gaya final, semua adegan ditampilkan. <button class="x" data-final="">Batalkan</button></p>`;
- const useSheets=!orig&&(S.modes.t2i||S.modes.t2v);
+ const useSheets=!orig&&(t2iOn()||S.modes.t2v);
  const NUM=["①","②","③","④","⑤","⑥","⑦","⑧","⑨","⑩"];
  const shown=testOnly?S.scenes.slice(0,1):S.scenes;
  const sheetChars=useSheets?S.chars.filter(c=>shown.some(sc=>charsIn(sc.text).includes(c))):[];SHEET_ORDER=sheetChars;
@@ -668,19 +669,19 @@ const VIEWS=[
   used.forEach((u,j)=>{html+=block("","n",`${NUM[j+1]||"•"} Sheet kostum: ${cname(u.ci)} – ${u.co.name||"Kostum "+(u.k+1)}`,promptCostumeSheet(st,u.c,u.co),`sc${u.ci}_${u.k}`,"sheet",
    `${dot(u.ci)}Lampirkan <b>sheet-karakter</b> sebagai source image, lalu simpan hasilnya sebagai <b>${esc(costumeFile(u.ci,u.co))}</b>. Selalu buat dari sheet-karakter asli, jangan dari sheet kostum lain. Generate beberapa kali dan pilih yang wajahnya paling mirip.`)});
   html+=`</div></div>`;
-  if(S.modes.t2i&&S.modes.i2v)html+=`<p class="hint">Setelah sheet jadi, tiap adegan cukup dua langkah: <b>gambar adegan</b> (lampirkan sheet yang disebut di catatan), lalu <b>video</b> dari gambar adegan itu.</p>`}
+  if(t2iOn()&&S.modes.i2v)html+=`<p class="hint">Setelah sheet jadi, tiap adegan cukup dua langkah: <b>gambar adegan</b> (lampirkan sheet yang disebut di catatan), lalu <b>video</b> dari gambar adegan itu.</p>`}
  shown.forEach((sc,i)=>{
   const cs=useSheets?charsIn(sc.text):[];
   let n=0;const step=t=>`${NUM[n++]||"•"} ${t}`;
   const nm=c=>c.name.trim()||"Karakter "+(S.chars.indexOf(c)+1);
   const allNames=cs.map(nm).map(esc).join(", ");
   html+=`<div class="frame"><div class="bar"><h3>Adegan ${i+1}</h3><small>${esc(sc.shot)} · ${esc(sc.cam)}</small></div><div class="body">`;
-  if(S.modes.t2i&&!orig)html+=block("","",step("Text → Image (gambar adegan)"),promptT2I(st,sc,i),`t${i}`,"image",`${cs.length?attachNote(cs,sc):""}Simpan hasilnya sebagai <b>adegan-${i+1}</b>.`);
-  if(S.modes.i2v)html+=block("","v",step("Image → Video"),promptI2V(st,sc,i),`v${i}`,"video",(orig?"Unggah gambarmu sendiri sebagai frame awal.":S.modes.t2i?`Pakai gambar <b>adegan-${i+1}</b> sebagai frame awal.`:"Unggah gambar adegan ini sebagai frame awal.")+(S.audio&&(sc.lines||[]).some(l=>l.text.trim())?`<br>Dialog: ${sc.lines.filter(l=>l.text.trim()).map(l=>`${l.who==="n"?dot(-1):dot(+l.who)}<b>${esc(l.who==="n"?(povFirst()?"Suara POV":"Narator"):cname(+l.who))}</b>`).join(" → ")}`:""));
+  if(t2iOn()&&!orig)html+=block("","",step("Text → Image (gambar adegan)"),promptT2I(st,sc,i),`t${i}`,"image",`${cs.length?attachNote(cs,sc):""}Simpan hasilnya sebagai <b>adegan-${i+1}</b>.`);
+  if(S.modes.i2v)html+=block("","v",step("Image → Video"),promptI2V(st,sc,i),`v${i}`,"video",(orig?"Unggah gambarmu sendiri sebagai frame awal.":t2iOn()?`Pakai gambar <b>adegan-${i+1}</b> sebagai frame awal.`:"Unggah gambar adegan ini sebagai frame awal.")+(S.audio&&(sc.lines||[]).some(l=>l.text.trim())?`<br>Dialog: ${sc.lines.filter(l=>l.text.trim()).map(l=>`${l.who==="n"?dot(-1):dot(+l.who)}<b>${esc(l.who==="n"?(povFirst()?"Suara POV":"Narator"):cname(+l.who))}</b>`).join(" → ")}`:""));
   if(S.modes.t2v&&!orig)html+=block("","v",S.modes.i2v?"Alternatif: Text → Video":step("Text → Video"),promptT2V(st,sc,i),`x${i}`,"t2v",cs.length&&S.platform==="flow"?`Di Flow, ${attachNote(cs,sc).replace(/^Lampirkan/,"lampirkan").replace(/ sebagai referensi \(ingredient\)/," sebagai ingredient")}`:"");
   html+=`</div></div>`});
  if(S.neg)html+=`<div class="frame"><div class="bar"><h3>Negative prompt</h3><small>Tempel jika platform menyediakan kolomnya</small></div><div class="body">
-  ${S.modes.t2i&&!orig?block("","n","Untuk gambar",NEG_IMG,"ni"):""}${S.modes.i2v||S.modes.t2v?block("","n","Untuk video",NEG_VID+(S.hemat?", scene cuts, multiple actions in one clip":"")+(orig?", style change, cartoon filter, color shift, re-rendered look":""),"nv"):""}</div></div>`;
+  ${t2iOn()&&!orig?block("","n","Untuk gambar",NEG_IMG,"ni"):""}${S.modes.i2v||S.modes.t2v?block("","n","Untuk video",NEG_VID+(S.hemat?", scene cuts, multiple actions in one clip":"")+(orig?", style change, cartoon filter, color shift, re-rendered look":""),"nv"):""}</div></div>`;
  html+=S.platform==="flow"?`<div class="tips"><h3>Cara pakai di Google Flow</h3><ol>
   <li>Buat <b>sheet karakter</b> dulu (satu gambar berisi semua karakter dan berbagai pose), lalu ikuti urutan nomor di tiap adegan.</li>
   <li>Buat gambar tiap adegan dengan prompt Text → Image, sertakan gambar karakter sebagai referensi agar wajah dan baju konsisten.</li>
