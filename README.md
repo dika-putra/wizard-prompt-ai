@@ -1,72 +1,74 @@
 # Wizard Prompt Animasi
 
-Wizard berbasis web untuk menyusun prompt **Text → Image**, **Image → Video**, dan **Text → Video** adegan demi adegan, siap ditempel ke **Google Flow** atau **Canva** untuk membuat video animasi.
+A web wizard that builds **Text → Image**, **Image → Video**, and **Text → Video** prompts scene by scene, ready to paste into **Google Flow** or **Canva** for making animated videos.
 
-Isian bisa ditulis dalam bahasa Indonesia; prompt akhir otomatis keluar dalam bahasa Inggris.
+You can fill in the fields in Indonesian; the final prompt always comes out in English.
 
-## Fitur
+The app UI and the guides in `docs/` are in Indonesian.
 
-**Wizard 6 langkah**
+## Features
 
-1. **Format**: jenis prompt (T2I, I2V, T2V), platform (Google Flow / Canva), rasio layar (16:9, 9:16, 1:1), mode hemat kredit, dan prompt otomatis bahasa Inggris.
-2. **Gaya**: 12 gaya siap pakai (3D Cartoon Pixar, Anime 2D, Claymation, Chibi, Buku Cerita, Wayang & Batik, dan lainnya) atau gaya sendiri. Bisa pilih beberapa gaya sekaligus, plus suasana dan pencahayaan.
-3. **Tema**: 10 tema siap pakai (hutan, Ramadan, desa, luar angkasa, fabel, dan lainnya) atau tema baru buatan sendiri.
-4. **Karakter**: jumlah bebas, dengan nama, jenis, umur, ciri fisik, pakaian, dan sifat.
-5. **Adegan**: terisi otomatis dari tema dan bisa diedit; jenis shot, gerak kamera, dan dialog per adegan.
-6. **Hasil**: prompt per gaya dan per adegan, prompt *character sheet*, negative prompt, tombol salin, dan panduan pemakaian.
+**6-step wizard**
 
-**Fitur AI** (butuh deploy dengan API key)
+1. **Format**: prompt type (T2I, I2V, T2V), platform (Google Flow / Canva), aspect ratio (16:9, 9:16, 1:1), credit-saving mode, and automatic English prompts.
+2. **Style**: 12 ready-made styles (3D Cartoon Pixar, 2D Anime, Claymation, Chibi, Storybook, Wayang & Batik, and more) or your own. You can pick several styles at once, plus mood and lighting.
+3. **Theme**: 10 ready-made themes (forest, Ramadan, village, outer space, fable, and more) or a custom one.
+4. **Characters**: any number, each with name, type, age, appearance, clothing, and personality.
+5. **Scenes**: filled in automatically from the theme and editable; shot type, camera movement, and dialogue per scene.
+6. **Result**: prompts per style and per scene, a *character sheet* prompt, a negative prompt, copy buttons, and a usage guide.
 
-- Membuat deskripsi latar dari ide tema baru.
-- Merapikan dan menerjemahkan deskripsi karakter.
-- Menyusun alur adegan dari ide cerita.
-- Menerjemahkan otomatis isian berbahasa Indonesia ke prompt bahasa Inggris. Isian yang sudah berbahasa Inggris dilewati, dan dialog tetap bahasa Indonesia.
-- Memperbaiki prompt per adegan (tombol **✨ Perbaiki**).
+**AI features** (need a deployment with an API key)
 
-**Mode hemat kredit** (untuk Google Flow gratis)
+- Generate a background description from a new theme idea.
+- Clean up and translate character descriptions.
+- Draft a scene flow from a story idea.
+- Translate Indonesian fields into the English prompt automatically. Fields already in English are skipped, and dialogue stays in Indonesian.
+- Fix a scene prompt (the **✨ Perbaiki** button, "Fix").
 
-- Peringatan langsung untuk adegan yang rawan gagal: lebih dari 2 karakter, lebih dari satu aksi, dialog terlalu panjang, kamera rawan *morphing*, tulisan di gambar, adegan makan atau minum, dan kerumunan.
-- Instruksi tambahan di prompt agar hasil lebih stabil.
-- Uji gaya di adegan 1 dulu sebelum menjadikannya gaya final.
-- Aturan yang sama diterapkan ke fitur AI.
+**Credit-saving mode** (for the free tier of Google Flow)
 
-Semua fitur non-AI tetap berjalan tanpa API key, bahkan saat file dibuka langsung dari komputer.
+- Live warnings for scenes likely to fail: more than 2 characters, more than one action, dialogue that is too long, camera moves that tend to cause *morphing*, text in the image, eating or drinking scenes, and crowds.
+- Extra instructions in the prompt for more stable results.
+- Test a style on scene 1 before making it the final style.
+- The same rules apply to the AI features.
 
-## Struktur proyek
+All non-AI features work without an API key, even when the file is opened straight from disk.
+
+## Project structure
 
 ```
 .
-├── index.html          # Antarmuka wizard (HTML, CSS, JS dalam satu file)
+├── index.html          # Wizard UI (HTML, CSS, and JS in one file)
 ├── api/
-│   └── generate.js     # Vercel Serverless Function, memanggil Gemini / Groq
+│   └── generate.js     # Vercel Serverless Function, calls Gemini / Groq
 ├── docs/
-│   ├── API.md          # Dokumentasi endpoint /api/generate
-│   └── PANDUAN.md      # Panduan pemakaian & tips Google Flow
-├── .env.example        # Contoh environment variables
+│   ├── API.md          # Docs for the /api/generate endpoint
+│   └── PANDUAN.md      # Usage guide and Google Flow tips
+├── .env.example        # Example environment variables
 ├── package.json
 └── README.md
 ```
 
-Tidak ada build step dan tidak ada dependency npm.
+There is no build step and no npm dependency.
 
-## Mulai cepat
+## Quick start
 
-### 1. Ambil API key
+### 1. Get an API key
 
-- **Gemini (disarankan)**: buka [Google AI Studio](https://aistudio.google.com), lalu pilih *Get API key* → *Create API key*.
-- **Groq (alternatif)**: buka [console.groq.com](https://console.groq.com), lalu masuk ke menu *API Keys*.
+- **Gemini (recommended)**: open [Google AI Studio](https://aistudio.google.com), then choose *Get API key* → *Create API key*.
+- **Groq (alternative)**: open [console.groq.com](https://console.groq.com), then go to *API Keys*.
 
-Batas kuota gratis bisa berubah sewaktu-waktu. Cek halaman rate limit masing-masing penyedia.
+Free-tier quotas can change at any time. Check each provider's rate limit page.
 
-### 2. Deploy ke Vercel
+### 2. Deploy to Vercel
 
-**Lewat GitHub**
+**Through GitHub**
 
-1. Push repository ini ke GitHub.
-2. Di [vercel.com](https://vercel.com), pilih *Add New → Project*, lalu pilih repository ini.
-3. Biarkan Framework Preset di *Other*, lalu klik *Deploy*.
+1. Push this repository to GitHub.
+2. On [vercel.com](https://vercel.com), choose *Add New → Project* and select this repository.
+3. Leave Framework Preset on *Other* and click *Deploy*.
 
-**Lewat terminal**
+**Through the terminal**
 
 ```bash
 npm i -g vercel
@@ -74,51 +76,51 @@ vercel          # preview
 vercel --prod   # production
 ```
 
-### 3. Atur environment variables
+### 3. Set environment variables
 
-Buka *Project → Settings → Environment Variables* di Vercel:
+Go to *Project → Settings → Environment Variables* in Vercel:
 
-| Variabel | Wajib | Default | Keterangan |
+| Variable | Required | Default | Description |
 |---|---|---|---|
-| `GEMINI_API_KEY` | Ya, jika memakai Gemini | | API key dari Google AI Studio |
-| `AI_PROVIDER` | Tidak | `gemini` | `gemini` atau `groq` |
-| `GROQ_API_KEY` | Ya, jika `AI_PROVIDER=groq` | | API key dari Groq |
-| `ACCESS_CODE` | Disarankan | kosong | Kode yang harus dimasukkan pengunjung sebelum memakai fitur AI |
-| `RATE_LIMIT` | Tidak | `30` | Maksimal request per IP per 10 menit |
-| `GEMINI_MODEL` | Tidak | `gemini-2.5-flash` | Ganti jika ada model yang lebih baru |
-| `GROQ_MODEL` | Tidak | `llama-3.3-70b-versatile` | Ganti jika ada model yang lebih baru |
+| `GEMINI_API_KEY` | Yes, if using Gemini | | API key from Google AI Studio |
+| `AI_PROVIDER` | No | `gemini` | `gemini` or `groq` |
+| `GROQ_API_KEY` | Yes, if `AI_PROVIDER=groq` | | API key from Groq |
+| `ACCESS_CODE` | Recommended | empty | Code visitors must enter before using the AI features |
+| `RATE_LIMIT` | No | `30` | Max requests per IP per 10 minutes |
+| `GEMINI_MODEL` | No | `gemini-2.5-flash` | Change it when a newer model is available |
+| `GROQ_MODEL` | No | `llama-3.3-70b-versatile` | Change it when a newer model is available |
 
-Setelah mengubah variabel, lakukan **Redeploy** agar perubahan aktif.
+After changing a variable, **Redeploy** so the change takes effect.
 
-### 4. Menjalankan di lokal
+### 4. Run locally
 
-Tanpa fitur AI, cukup buka `index.html` di browser.
+Without the AI features, just open `index.html` in a browser.
 
-Dengan fitur AI:
+With the AI features:
 
 ```bash
 npm i -g vercel
 vercel link
-vercel env pull .env.local   # atau salin .env.example menjadi .env.local lalu isi
+vercel env pull .env.local   # or copy .env.example to .env.local and fill it in
 vercel dev                   # http://localhost:3000
 ```
 
-## Cara kerja singkat
+## How it works
 
-- Prompt dirakit di browser dari template: pilihan gaya, tema, karakter, dan kamera dipetakan ke frasa bahasa Inggris lalu digabungkan.
-- Konsistensi karakter dijaga dengan memasukkan deskripsi lengkap karakter yang disebut di setiap adegan. Jika tidak ada nama yang disebut, semua karakter dimasukkan.
-- Fitur AI memanggil `POST /api/generate`. Prompt untuk model dirakit di server berdasarkan jenis tugas, sehingga endpoint tidak bisa dipakai sebagai chatbot bebas. Detailnya ada di [docs/API.md](docs/API.md).
-- Terjemahan otomatis memakai deteksi bahasa sederhana di browser (kosakata umum dan imbuhan). Hasilnya di-cache, jadi hanya isian baru atau yang berubah yang diterjemahkan ulang.
-- Semua isian tersimpan di `localStorage` browser dengan key `wizard-prompt-animasi-v1`. Data tidak dikirim ke server kecuali saat memakai fitur AI.
+- Prompts are assembled in the browser from templates: style, theme, character, and camera choices are mapped to English phrases and joined together.
+- Character consistency comes from including the full description of every character named in a scene. If no name is mentioned, all characters are included.
+- The AI features call `POST /api/generate`. The model prompt is built on the server from the task type, so the endpoint cannot be used as a free-form chatbot. Details are in [docs/API.md](docs/API.md).
+- Automatic translation uses a simple language check in the browser (common words and affixes). Results are cached, so only new or changed fields are translated again.
+- All input is saved in the browser's `localStorage` under the key `wizard-prompt-animasi-v1`. Nothing is sent to the server except when you use an AI feature.
 
-## Keamanan
+## Security
 
-- Jangan pernah menaruh API key di `index.html` atau meng-commit file `.env*`. File `.gitignore` sudah mengecualikannya.
-- Aktifkan `ACCESS_CODE` jika situs dibuka untuk publik, supaya kuota API tidak dipakai orang lain.
-- Rate limit bawaan tersimpan di memori tiap instance serverless, sehingga sifatnya *best effort*, bukan perlindungan penuh.
-- Pada free tier, penyedia API dapat memakai data yang dikirim untuk melatih model. Jangan kirim data sensitif.
+- Never put an API key in `index.html` or commit `.env*` files. `.gitignore` already excludes them.
+- Turn on `ACCESS_CODE` if the site is public, so others cannot use up your API quota.
+- The built-in rate limit is stored in memory per serverless instance, so it is *best effort*, not full protection.
+- On free tiers, API providers may use the data you send to train models. Do not send sensitive data.
 
-## Dokumentasi lain
+## More docs
 
-- [docs/PANDUAN.md](docs/PANDUAN.md): panduan pemakaian dan tips agar hemat kredit di Google Flow.
-- [docs/API.md](docs/API.md): spesifikasi endpoint dan cara menambah tugas AI baru.
+- [docs/PANDUAN.md](docs/PANDUAN.md): usage guide and tips for saving credits in Google Flow (Indonesian).
+- [docs/API.md](docs/API.md): endpoint spec and how to add a new AI task (Indonesian).
