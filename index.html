@@ -143,6 +143,11 @@ pre.p{margin:0;white-space:pre-wrap;word-break:break-word;background:var(--code)
 .hemat-sum.ok{background:var(--tealSoft)}
 .idnote{border-radius:12px;padding:10px 14px;margin:0 0 12px;font-size:14px;background:var(--chip);border:1px solid var(--teal);display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
 .idnote[hidden]{display:none}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;flex:none;vertical-align:middle;margin-right:4px}
+.dl{display:grid;grid-template-columns:auto minmax(110px,170px) 1fr auto;gap:6px;align-items:center;margin-top:6px}
+.dl .dot{margin:0}
+@media (max-width:520px){.dl{grid-template-columns:auto 1fr auto}.dl input{grid-column:1/-1}}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--chip);color:var(--muted)}
 .err{color:var(--danger);font-size:13px;font-weight:600;margin-top:8px}
 @media (prefers-reduced-motion:no-preference){.panel{animation:in .25s ease-out}@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}}
 </style>
@@ -322,6 +327,44 @@ function profObj(){const p=PROFS.find(x=>x.id===S.prof.type)||PROFS[0];
  return{...p,name:S.prof.customName.trim()||"Profesi lain",en:T(S.prof.customName)||"worker",uniform:T(S.prof.customUniform)||"a work uniform",setting:T(S.prof.customPlace)||"the workplace"}}
 function profBeats(p){const role=`${art(p.en)} ${p.en}`;
  return p.beats.map(b=>S.prof.view==="pov"?`POV as ${role}: ${b}`:`{ALL} as ${role}: ${b}`)}
+let SHEET_ORDER=[];
+const colOf=ci=>COLORS[ci%COLORS.length];
+const dot=ci=>ci>=0?`<span class="dot" style="background:${colOf(ci)}"></span>`:`<span class="dot" style="background:var(--line)"></span>`;
+const cname=ci=>(S.chars[ci]&&S.chars[ci].name.trim())||"Karakter "+(ci+1);
+function rowOf(c){const k=SHEET_ORDER.indexOf(c);return SHEET_ORDER.length>1&&k>-1?k+1:0}
+const slug=s=>String(s).toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"x";
+function costumeOf(sc,ci){const c=S.chars[ci];if(!sc||!c||!sc.outfits)return null;const k=sc.outfits[ci];
+ const co=(k!==undefined&&k!=="")?(c.costumes||[])[+k]:null;return co&&co.outfit.trim()?co:null}
+function outfitOf(c,sc){const ci=S.chars.indexOf(c);const co=costumeOf(sc,ci);if(co)return T(co.outfit);
+ return(pov()&&S.prof.view!=="pov")?profObj().uniform:T(c.outfit)}
+const costumeFile=(ci,co)=>`sheet-${slug(cname(ci))}-${slug(co.name||"kostum")}`;
+function refLine(cs,shortForm,sc){if(!cs.length)return"";
+ const cos=cs.filter(c=>costumeOf(sc,S.chars.indexOf(c)));
+ if(cos.length){const def=cs.filter(c=>!cos.includes(c));const parts=[];
+  if(def.length){const rows=def.filter(rowOf).map(c=>`${c.name.trim()} in row ${rowOf(c)}`);
+   parts.push(`the main character sheet for ${joinNames(def.map(c=>c.name.trim()||"the character"))}${rows.length?` (${rows.join(", ")})`:""}`)}
+  cos.forEach(c=>{const ci=S.chars.indexOf(c);const co=costumeOf(sc,ci);parts.push(`the costume sheet of ${c.name.trim()||"the character"} wearing ${T(co.outfit)}`)});
+  return shortForm?` Match the characters to the attached sheets: ${parts.join("; ")}.`:`\nReference: use the attached images as the exact references for face, hair, body proportions, colors and outfit: ${parts.join("; ")}. Each character wears exactly the outfit shown in their reference.`}
+ const ns=joinNames(cs.map(c=>c.name.trim()||"the character"));
+ const rows=cs.filter(rowOf).map(c=>`${c.name.trim()||"the character"} is in row ${rowOf(c)}`);
+ const rowTxt=rows.length?` (${rows.join(", ")}, counted from the top)`:"";
+ return shortForm?` Match ${ns} to the attached character sheet${rowTxt}.`:`\nReference: use the attached character sheet image as the exact reference for ${ns}${rowTxt}: face, hair, body proportions, colors and outfit.`}
+function speakerTag(ci,sc){const c=S.chars[ci];if(!c)return"";const t=en(CHAR_TYPES,c.type);
+ const outfit=outfitOf(c,sc);const first=String(outfit||"").split(",")[0].trim();
+ return`the ${t}${first?" in "+first:""}`}
+function speakerLabel(who,sc){if(who==="n"||!S.chars[+who])return povFirst()?"the off-screen POV voice":"an off-screen narrator";
+ return`${cname(+who)} (${speakerTag(+who,sc)})`}
+const escRe=s=>s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+function parseDialog(str,fallback){str=String(str||"").trim();if(!str)return[];
+ const ns=S.chars.map(c=>c.name.trim()).filter(Boolean);
+ const re=new RegExp(`(${[...ns.map(escRe),"Narator","Narrator"].join("|")})\\s*:`,"gi");
+ const marks=[...str.matchAll(re)];const clean=t=>t.trim().replace(/^["“]|["”]$/g,"").trim();
+ if(!marks.length)return[{who:fallback,text:clean(str)}];
+ return marks.map((m,k)=>{const end=k+1<marks.length?marks[k+1].index:str.length;const nm=m[1].toLowerCase();
+  const ci=S.chars.findIndex(c=>c.name.trim().toLowerCase()===nm);return{who:ci>-1?String(ci):"n",text:clean(str.slice(m.index+m[0].length,end))}}).filter(l=>l.text).slice(0,2)}
+function defaultWho(sc){const cs=charsIn(sc.text||"");return cs.length?String(S.chars.indexOf(cs[0])):(S.chars.length?"0":"n")}
+function normScene(sc){if(!Array.isArray(sc.lines)){sc.lines=parseDialog(sc.dialog,defaultWho(sc))}delete sc.dialog;
+ if(!sc.outfits||typeof sc.outfits!=="object")sc.outfits={};if(sc.sing===undefined)sc.sing="";if(sc.singWho===undefined)sc.singWho=defaultWho(sc);return sc}
 function TS(t){let x=T(t);const raw=S.prof.customName.trim();
  if(pov()&&S.prof.type==="custom"&&raw){const tr=T(raw);if(tr!==raw)x=x.split(raw).join(tr)}return x}
 function profLine(){if(!pov())return"";const p=profObj();
@@ -376,10 +419,10 @@ function pickBeats(n){const b=currentTheme().beats;if(n<=0)return[];
  if(n<=b.length)return Array.from({length:n},(_,k)=>b[Math.round(k*(b.length-1)/(n-1))]);
  const extra=GENERIC_BEATS.filter(x=>!b.includes(x));const out=b.slice(0,-1);
  for(let k=0;out.length<n-1;k++)out.push(extra[k%extra.length]);out.push(b[b.length-1]);return out}
-function autoScene(text,i,n){if(povFirst())return{text:fill(text),shot:"Medium shot",cam:"Handheld",dialog:"",sing:""};
- if(S.theme==="dance")return{text:fill(text),shot:i===n-1&&n>1?"Medium shot":"Wide shot",cam:i===n-1&&n>1?"Zoom in perlahan":"Statis",dialog:"",sing:""};
- if(n===1)return{text:fill(text),shot:"Medium shot",cam:"Zoom in perlahan",dialog:""};
- return{text:fill(text),shot:i===0||i===n-1?"Wide shot":(i%2?"Medium shot":"Close-up"),cam:i===0?"Drone dari atas":(i===n-1?"Zoom out":(i%2?"Ikuti karakter":"Zoom in perlahan")),dialog:""}}
+function autoScene(text,i,n){if(povFirst())return{text:fill(text),shot:"Medium shot",cam:"Handheld",lines:[],sing:"",singWho:"n"};
+ if(S.theme==="dance")return{text:fill(text),shot:i===n-1&&n>1?"Medium shot":"Wide shot",cam:i===n-1&&n>1?"Zoom in perlahan":"Statis",lines:[],sing:"",singWho:"0"};
+ if(n===1)return{text:fill(text),shot:"Medium shot",cam:"Zoom in perlahan",lines:[],sing:"",singWho:"0"};
+ return{text:fill(text),shot:i===0||i===n-1?"Wide shot":(i%2?"Medium shot":"Close-up"),cam:i===0?"Drone dari atas":(i===n-1?"Zoom out":(i%2?"Ikuti karakter":"Zoom in perlahan")),lines:[],sing:"",singWho:"0"}}
 function buildScenes(){const n=Math.min(Math.max(parseInt(S.sceneCount,10)||5,1),12);
   S.scenes=pickBeats(n).map((b,i)=>autoScene(b,i,n));save()}
 function resizeScenes(){const n=Math.min(Math.max(parseInt(S.sceneCount,10)||1,1),12);const cur=S.scenes.length;
@@ -387,10 +430,10 @@ function resizeScenes(){const n=Math.min(Math.max(parseInt(S.sceneCount,10)||1,1
   if(lost&&!confirm(`Adegan ${n+1}–${cur} akan dihapus. Lanjutkan?`)){S.sceneCount=String(cur);render();return}
   S.scenes=S.scenes.slice(0,n)}
  else if(n>cur){const used=new Set(S.scenes.map(s=>s.text));const pool=pickBeats(12).map(fill).filter(t=>!used.has(t));
-  for(let i=cur;i<n;i++){const t=pool.shift();S.scenes.push(t?{...autoScene(t,i,n),text:t}:{text:"",shot:"Medium shot",cam:"Statis",dialog:""})}}
+  for(let i=cur;i<n;i++){const t=pool.shift();S.scenes.push(t?{...autoScene(t,i,n),text:t}:{text:"",shot:"Medium shot",cam:"Statis",lines:[],sing:"",singWho:"0"})}}
  render()}
 function T(x){const k=String(x||"").trim();return(S.autoEn&&S.tr[k])||k}
-function charDesc(c,i){const t=en(CHAR_TYPES,c.type);const parts=[t];if(c.age.trim())parts.push(T(c.age));if(c.look.trim())parts.push(T(c.look));if(pov()&&S.prof.view!=="pov")parts.push("wearing "+profObj().uniform);else if(c.outfit.trim())parts.push("wearing "+T(c.outfit));if(c.trait.trim())parts.push(T(c.trait)+" personality");
+function charDesc(c,i,sc){const t=en(CHAR_TYPES,c.type);const parts=[t];if(c.age.trim())parts.push(T(c.age));if(c.look.trim())parts.push(T(c.look));{const of=outfitOf(c,sc);if(of)parts.push("wearing "+of)}if(c.trait.trim())parts.push(T(c.trait)+" personality");
   return`${c.name.trim()||"Character "+(i+1)} (${parts.join(", ")})`}
 function charsIn(text){const low=text.toLowerCase();const hit=S.chars.filter(c=>c.name.trim()&&low.includes(c.name.trim().toLowerCase()));return hit.length?hit:(povFirst()?[]:S.chars)}
 
@@ -407,7 +450,7 @@ function sceneWarnings(i){const sc=S.scenes[i];if(!S.hemat||!sc)return[];const w
  const seq=(t.match(/\b(then|after that|afterwards|finally|lalu|kemudian|setelah itu|akhirnya)\b/g)||[]).length;
  const sentences=sc.text.split(/[.!?]+/).filter(s=>s.trim().split(/\s+/).length>2).length;
  if(seq||sentences>2)w.push("Sepertinya ada lebih dari satu aksi. Klip 8 detik paling stabil dengan satu aksi; pecah jadi adegan terpisah.");
- if(S.audio&&sc.dialog.trim()){const n=sc.dialog.replace(/[^\s:"“”]{1,20}\s*:/g," ").replace(/["“”]/g," ").trim().split(/\s+/).filter(Boolean).length;
+ if(S.audio&&(sc.lines||[]).some(l=>l.text.trim())){const n=sc.lines.map(l=>l.text).join(" ").replace(/["“”]/g," ").trim().split(/\s+/).filter(Boolean).length;
   if(n>15)w.push(`Dialog ${n} kata. Untuk klip 8 detik idealnya 8–15 kata, kalau lebih bisa terpotong atau diucapkan terlalu cepat.`)}
  if(RISKY_CAMS.includes(sc.cam)&&!(povFirst()&&sc.cam==="Handheld")&&i>0&&i<S.scenes.length-1)w.push(`Kamera "${sc.cam}" rawan membuat karakter berubah bentuk. Pakai untuk pembuka atau penutup saja, atau ganti ke Statis / Zoom in perlahan.`);
  if(/\b(text|sign|signs|letters|writing|banner|tulisan|papan nama|spanduk)\b/.test(t))w.push("Tulisan di dalam gambar sering rusak. Tambahkan teks belakangan di Canva atau editor video.");
@@ -418,6 +461,11 @@ function sceneWarnings(i){const sc=S.scenes[i];if(!S.hemat||!sc)return[];const w
  if(S.audio&&(sc.sing||"").trim()){const n=sc.sing.trim().split(/\s+/).length;if(n>12)w.push(`Lirik ${n} kata. Untuk klip 8 detik idealnya maksimal 12 kata supaya gerak bibir jelas.`)}
  if(/\b(crowd|many people|kerumunan|ramai|orang banyak)\b/.test(t))w.push("Kerumunan banyak orang yang bergerak rawan berantakan. Fokuskan ke 1–2 karakter utama.");
  return w}
+function attachNote(cs,sc){const def=cs.filter(c=>!costumeOf(sc,S.chars.indexOf(c)));const cos=cs.filter(c=>costumeOf(sc,S.chars.indexOf(c)));const parts=[];
+ if(def.length)parts.push(`<b>sheet-karakter</b> untuk ${def.map(c=>{const ci=S.chars.indexOf(c);return`${dot(ci)}${esc(cname(ci))}${rowOf(c)?` (baris ${rowOf(c)})`:""}`}).join(", ")}`);
+ cos.forEach(c=>{const ci=S.chars.indexOf(c);parts.push(`<b>${esc(costumeFile(ci,costumeOf(sc,ci)))}</b> untuk ${dot(ci)}${esc(cname(ci))}`)});
+ return`Lampirkan ${parts.join(" dan ")} sebagai referensi (ingredient). `}
+function speakerOpts(cur){return S.chars.map((c,ci)=>`<option value="${ci}" ${String(ci)===String(cur)?"selected":""}>${esc(cname(ci))}</option>`).join("")+`<option value="n" ${cur==="n"?"selected":""}>${povFirst()?"Suara POV (kamu)":"Narator"}</option>`}
 function warnHTML(i){const w=sceneWarnings(i);return w.length?`<ul>${w.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}
 const ID_WORDS=/\b(yang|dan|sedang|dengan|sambil|bersama|melihat|berjalan|berlari|lalu|kemudian|sebuah|dari|tidak|sangat|mereka|sedih|senang|tersenyum|menangis|duduk|bermain|pergi|datang|ke|di)\b/g;
 const ID_VOCAB=new Set(("tukang penjual pedagang sopir supir penjahit pemain penyanyi pelukis pengrajin satpam pelayan kasir bidan apoteker dosen wartawan petugas pegawai karyawan kerja seragam bengkel toko warung pasar kantor "+"yang dan atau dengan sambil bersama sedang lagi akan sudah belum tidak bukan sangat agak lebih paling juga lalu kemudian setelah sebelum saat ketika karena supaya agar untuk dari ke di pada dalam luar atas bawah depan belakang samping dekat jauh ini itu sini sana dia mereka kami kita aku saya kamu ia nya "
@@ -447,9 +495,9 @@ function updateIdNote(){const el=$("#idnote");if(!el)return;if(S.autoEn){el.hidd
 function updateSum(){const el=$("#hsum");if(!el)return;const n=S.scenes.reduce((a,_,i)=>a+sceneWarnings(i).length,0);
  el.className="hemat-sum"+(n?"":" ok");el.textContent=n?`Mode hemat kredit: ${n} peringatan di adegan. Perbaiki dulu supaya tidak banyak generate ulang.`:"Mode hemat kredit: semua adegan aman untuk di-generate."}
 
-function promptT2I(st,sc,i){const th=currentTheme();const cs=charsIn(sc.text).map(c=>charDesc(c,S.chars.indexOf(c)));
-  if(short())return`${st.look.split(",").slice(0,3).join(",")}. ${TS(sc.text)}, in ${T(th.setting)}. ${cs.join("; ")}. ${en(LIGHTS,S.light)}, ${en(MOODS,S.mood)} mood. ${S.ar}.${povFirst()?" First-person POV, own hands visible.":""}${S.hemat?" No text.":""}`;
-  let p=`${povFirst()?"first-person POV shot":en(SHOTS,sc.shot)}, ${st.look}.\n\nScene ${i+1}: ${TS(sc.text)}.\nSetting: ${T(th.setting)}.${cs.length?`\nCharacters: ${cs.join("; ")}.`:""}${profLine()}\nLighting & mood: ${en(LIGHTS,S.light)}, ${en(MOODS,S.mood)} atmosphere.${povFirst()?`\nComposition: the viewer's hands and the main action as the focal point, immersive first-person framing, aspect ratio ${S.ar}.\nKeep the uniform, gloves and hands exactly consistent across all scenes.`:`\nComposition: clear readable staging, characters as the focal point, cinematic framing, aspect ratio ${S.ar}.\nKeep every character's face, hair, colors and outfit exactly consistent across all scenes.`}${danceObj()?"\nPose: mid-dance pose, full body visible, feet on the ground.":""}${S.hemat?"\nNo text, letters or signs anywhere in the image.":""}`;
+function promptT2I(st,sc,i){const th=currentTheme();const raw=charsIn(sc.text);const cs=raw.map(c=>charDesc(c,S.chars.indexOf(c),sc));
+  if(short())return`${st.look.split(",").slice(0,3).join(",")}. ${TS(sc.text)}, in ${T(th.setting)}. ${cs.join("; ")}. ${en(LIGHTS,S.light)}, ${en(MOODS,S.mood)} mood. ${S.ar}.${povFirst()?" First-person POV, own hands visible.":""}${refLine(raw,true,sc)}${S.hemat?" No text.":""}`;
+  let p=`${povFirst()?"first-person POV shot":en(SHOTS,sc.shot)}, ${st.look}.\n\nScene ${i+1}: ${TS(sc.text)}.\nSetting: ${T(th.setting)}.${cs.length?`\nCharacters: ${cs.join("; ")}.`:""}${refLine(raw,false,sc)}${profLine()}\nLighting & mood: ${en(LIGHTS,S.light)}, ${en(MOODS,S.mood)} atmosphere.${povFirst()?`\nComposition: the viewer's hands and the main action as the focal point, immersive first-person framing, aspect ratio ${S.ar}.\nKeep the uniform, gloves and hands exactly consistent across all scenes.`:`\nComposition: clear readable staging, characters as the focal point, cinematic framing, aspect ratio ${S.ar}.\nKeep every character's face, hair, colors and outfit exactly consistent across all scenes.`}${danceObj()?"\nPose: mid-dance pose, full body visible, feet on the ground.":""}${S.hemat?"\nNo text, letters or signs anywhere in the image.":""}`;
   return p}
 function promptI2V(st,sc,i){const cs=charsIn(sc.text);
   if(st.id==="original"){const who=joinNames(cs.map(c=>c.name.trim()||"the character"));
@@ -457,20 +505,33 @@ function promptI2V(st,sc,i){const cs=charsIn(sc.text);
     ?`Animate this image: ${TS(sc.text)}. ${en(CAMS,sc.cam)}. Keep the exact original style, colors and lighting of the image, do not restyle.`
     :`Animate this image (scene ${i+1}).\nAction: ${TS(sc.text)}, with natural believable movement and clear emotions.\nCamera: ${en(CAMS,sc.cam)}.\nStyle: preserve the exact art style, colors, lighting, textures and character design of the input image. Do not restyle, cartoonize, re-render or change the look in any way. Only add motion.\nMotion: ${st.motion}.\nMood: ${en(MOODS,S.mood)}.\nConsistency: keep ${who}, the background and all details identical to the input image, no morphing or design changes.`;
    o+=danceLine()+profLine();if(S.hemat)o+=(danceObj()?HEMAT_V_DANCE:HEMAT_V_BASE);if(S.audio)o+=audioLine(sc,cs);return o}
+  const sf=S.modes.t2i?`Starting frame: the scene ${i+1} image generated with the Text → Image prompt.\n`:"";
   let p=short()
    ?`Animate this image: ${TS(sc.text)}. ${en(CAMS,sc.cam)}. ${st.motion}. ${en(MOODS,S.mood)} mood.`
-   :`Animate this image (scene ${i+1}).\nAction: ${TS(sc.text)}, with natural believable movement and clear emotions.\nCamera: ${povFirst()?"first-person POV, ":""}${en(CAMS,sc.cam)}.\nStyle & motion: ${st.motion}, keep the exact art style of the input image.\nMood: ${en(MOODS,S.mood)}.\nConsistency: keep ${povFirst()&&!cs.length?"the scene, hands and uniform":joinNames(cs.map(c=>c.name.trim()||"the character"))} identical to the reference image, no morphing or design changes.`;
+   :`Animate this image (scene ${i+1}).\n${sf}Action: ${TS(sc.text)}, with natural believable movement and clear emotions.\nCamera: ${povFirst()?"first-person POV, ":""}${en(CAMS,sc.cam)}.\nStyle & motion: ${st.motion}, keep the exact art style of the input image.\nMood: ${en(MOODS,S.mood)}.\nConsistency: keep ${povFirst()&&!cs.length?"the scene, hands and uniform":joinNames(cs.map(c=>c.name.trim()||"the character"))} identical to the reference image, no morphing or design changes.`;
   p+=danceLine()+profLine();if(S.hemat)p+=(danceObj()?HEMAT_V_DANCE:HEMAT_V_BASE);if(S.audio)p+=audioLine(sc,cs);return p}
-function promptT2V(st,sc,i){const th=currentTheme();const cs=charsIn(sc.text).map(c=>charDesc(c,S.chars.indexOf(c)));
+function promptT2V(st,sc,i){const th=currentTheme();const cs=charsIn(sc.text).map(c=>charDesc(c,S.chars.indexOf(c),sc));
   let p=`${povFirst()?"first-person POV shot":en(SHOTS,sc.shot)}, ${st.look}.\nScene ${i+1}: ${TS(sc.text)}, in ${T(th.setting)}.${cs.length?`\nCharacters: ${cs.join("; ")}.`:""}\nCamera: ${povFirst()?"first-person POV, ":""}${en(CAMS,sc.cam)}. Motion: ${st.motion}.\nLighting & mood: ${en(LIGHTS,S.light)}, ${en(MOODS,S.mood)}. Aspect ratio ${S.ar}.`;
   p+=danceLine()+profLine();if(S.hemat)p+=(danceObj()?HEMAT_V_DANCE:HEMAT_V_BASE);if(S.audio)p+=audioLine(sc,charsIn(sc.text));return p}
 function audioLine(sc,cs){const dz=danceObj();
   const music=dz?(S.dance.ownSong?"no background music, only light ambient sound (a song will be added in editing)":dz.music+", clear steady beat"):`${en(MOODS,S.mood)} background music`;
   let a=`\nAudio: ${music}, ${pov()?profObj().sfx:"natural ambient sounds of the scene"}`;
-  const sg=(sc.sing||"").trim();if(sg){const who=(cs[0]&&cs[0].name.trim())||(povFirst()?"The off-screen POV voice":"The character");a+=`. ${who} sings: "${sg}", with clear lip movements matching the words`}
-  const d=sc.dialog.trim();if(d){const who=(cs[0]&&cs[0].name.trim())||(povFirst()?"The off-screen POV voice":"The character");
-    a+=d.includes(":")?`. Dialogue: ${d}`:`. ${who} says: "${d}"`}return a+"."}
-function promptSheet(st,c,i){return`Character reference sheet, ${st.look}. ${charDesc(c,i)}. Full body turnaround showing front view, three-quarter view, side view and back view, plus 3 facial expressions (happy, surprised, sad). Neutral standing pose, plain white background, even lighting, no text.`}
+  const sg=(sc.sing||"").trim();if(sg)a+=`. ${cap(speakerLabel(sc.singWho,sc))} sings: "${sg}", with clear lip movements matching the words`;
+  const ls=(sc.lines||[]).filter(l=>l.text.trim());
+  if(ls.length)a+=". Dialogue, in this order: "+ls.map(l=>`${speakerLabel(l.who,sc)} says: "${l.text.trim()}"`).join(" Then ")+(ls.some(l=>l.who!=="n")?". Only the speaking character's lips move":"");
+  return a+"."}
+function promptCostumeSheet(st,c,co){const ci=S.chars.indexOf(c);const nm=cname(ci);const r=rowOf(c);
+ return`Using the attached character sheet as the exact reference${r?` (use only ${nm} from row ${r}, ignore the other characters)`:""}, recreate ${nm} as a new character reference sheet in one single image, ${st.look}.
+Keep EXACTLY the same face, hair, skin tone, eye color and body proportions as the reference. Only change the outfit to: ${T(co.outfit)}.
+Layout: a full-body turnaround (front, three-quarter, side and back view), action poses (walking, waving, sitting, jumping happily) and three facial expressions (happy, surprised, sad).
+Plain white background, even soft lighting, identical design in every pose, no text or labels.`}
+function promptSheetAll(st,list){const many=list.length>1;
+ const who=list.map((c,k)=>`${many?"Row "+(k+1)+": ":""}${charDesc(c,S.chars.indexOf(c))}`).join(many?"\n":"");
+ const extra=danceObj()?"a dancing pose, ":pov()?"a working pose with the tools of the job, ":"";
+ return`${many?`Character reference sheet of ${list.length} characters in ONE single image`:"Character reference sheet in one single image"}, ${st.look}.
+${many?"Characters:\n":"Character: "}${who}
+Layout: ${many?`each character in their own clearly separated horizontal row, in the order listed from top to bottom (${list.map((c,k)=>`row ${k+1}: ${c.name.trim()||"character "+(k+1)}`).join(", ")}), all at the same scale. For each character show`:"show"} a full-body turnaround (front, three-quarter, side and back view), action poses (walking, waving, sitting, ${extra}jumping happily) and three facial expressions (happy, surprised, sad).
+Plain white background, even soft lighting, identical design in every pose, no text or labels.`}
 
 /* ---------------- RENDER ---------------- */
 function renderSteps(){$("#steps").innerHTML=STEPS.map((s,i)=>`<button class="${i===S.step?"on":""} ${i<S.step?"done":""}" data-go="${i}" ${i===S.step?'aria-current="step"':""}><span class="n">${i<S.step?"✓":i+1}</span>${s}</button>`).join("")}
@@ -527,7 +588,7 @@ const VIEWS=[
 
 ()=>`<section class="panel"><h2>Siapa saja karakternya?</h2>${povFirst()?`<div class="aibox"><b>Mode POV.</b> Penonton melihat dari mata si profesi, jadi tokoh utamanya tidak terlihat. Karakter di sini opsional, misalnya rekan kerja atau orang yang ditolong, dan hanya muncul kalau namanya disebut di adegan.</div>`:pov()?`<div class="aibox"><b>Karakter jadi profesi.</b> Pakaian semua karakter otomatis diganti seragam ${esc(profObj().name.toLowerCase())}.</div>`:""}<p class="lead">Semakin spesifik ciri fisik dan pakaian, semakin konsisten karakter dari adegan ke adegan. Isi deskripsi dalam bahasa Inggris agar model membaca lebih tepat.</p>
  ${S.chars.map((c,i)=>`<div class="char">
-  <div class="char-head"><div class="avatar" style="background:${COLORS[i%COLORS.length]}">${esc((c.name.trim()||"?")[0].toUpperCase())}</div>
+  <div class="chip" style="margin-bottom:8px">${dot(i)}Karakter ${i+1}</div><div class="char-head"><div class="avatar" style="background:${COLORS[i%COLORS.length]}">${esc((c.name.trim()||"?")[0].toUpperCase())}</div>
    <input type="text" data-char="${i}" data-k="name" value="${esc(c.name)}" placeholder="Nama karakter" aria-label="Nama karakter">
    ${S.chars.length>1?`<button class="x" data-del="${i}">Hapus</button>`:""}</div>
   <div class="row">
@@ -536,9 +597,15 @@ const VIEWS=[
   </div>
   <div class="field" style="margin-top:8px"><label>Ciri fisik ${c.type==="Hewan"?"(sebutkan jenis hewannya)":""}</label><input type="text" data-char="${i}" data-k="look" value="${esc(c.look)}" placeholder="${c.type==="Hewan"?"orange cat with white paws, green eyes":"long black hair in ponytail, light tan skin, freckles"}"></div>
   <div class="row" style="margin-top:8px">
-   <div class="field"><label>Pakaian / aksesori</label><input type="text" data-char="${i}" data-k="outfit" value="${esc(c.outfit)}" placeholder="pink hijab, white school uniform"></div>
+   <div class="field"><label>Pakaian utama / aksesori</label><input type="text" data-char="${i}" data-k="outfit" value="${esc(c.outfit)}" placeholder="pink hijab, white school uniform"></div>
    <div class="field"><label>Sifat</label><input type="text" data-char="${i}" data-k="trait" value="${esc(c.trait)}" placeholder="brave, a bit clumsy"></div>
-  </div></div>`).join("")}
+  </div>
+  ${(c.costumes||[]).map((co,k)=>`<div class="row" style="margin-top:8px;grid-template-columns:minmax(120px,1fr) 2fr auto;align-items:end">
+   <div class="field"><label>Kostum ${k+2}</label><input type="text" data-cos="${i}:${k}" data-ck="name" value="${esc(co.name)}" placeholder="Piyama"></div>
+   <div class="field"><label>Deskripsi pakaian</label><input type="text" data-cos="${i}:${k}" data-ck="outfit" value="${esc(co.outfit)}" placeholder="piyama biru bergambar bintang, sandal kelinci"></div>
+   <button class="x" data-delcos="${i}:${k}" style="padding-bottom:10px">Hapus</button></div>`).join("")}
+  <button class="ghost" data-addcos="${i}" style="margin-top:8px">+ Tambah kostum</button>
+  </div>`).join("")}
  <button class="add" id="addChar">+ Tambah karakter</button>
  <div class="aibox"><button class="ai" id="aiChars">✨ Rapikan &amp; terjemahkan dengan AI</button>
   <p class="hint">Boleh isi pakai bahasa Indonesia seadanya. AI akan menerjemahkan dan menambahkan detail visual supaya karakter konsisten.</p></div>
@@ -560,8 +627,12 @@ const VIEWS=[
    <div class="field"><label>Jenis shot (gambar)</label><select data-scene="${i}" data-k="shot">${SHOTS.map(o=>`<option ${o[0]===sc.shot?"selected":""}>${o[0]}</option>`).join("")}</select></div>
    <div class="field"><label>Gerak kamera (video)</label><select data-scene="${i}" data-k="cam">${CAMS.map(o=>`<option ${o[0]===sc.cam?"selected":""}>${o[0]}</option>`).join("")}</select></div>
   </div>
-  ${S.audio?`<div class="field" style="margin-top:8px"><label>Dialog (opsional)</label><input type="text" data-scene="${i}" data-k="dialog" value="${esc(sc.dialog)}" placeholder='Wow, lihat itu! — atau — Kiko: "Ayo!" Mira: "Tunggu aku!"'></div>
-  <div class="field" style="margin-top:8px"><label>Nyanyian (opsional, lirik buatan sendiri)</label><input type="text" data-scene="${i}" data-k="sing" value="${esc(sc.sing||"")}" placeholder="Ayo joget, ayo goyang, semua senang"></div>`:""}
+  ${S.chars.some(c=>(c.costumes||[]).length)?`<div class="opts">${S.chars.map((c,ci)=>(c.costumes||[]).length?`<div class="field"><label>${dot(ci)}Kostum ${esc(cname(ci))}</label><select data-scene="${i}" data-outfit="${ci}"><option value="">Utama</option>${c.costumes.map((co,k)=>`<option value="${k}" ${String((sc.outfits||{})[ci])===String(k)?"selected":""}>${esc(co.name||"Kostum "+(k+2))}</option>`).join("")}</select></div>`:"").join("")}</div>`:""}
+  ${S.audio?`<div class="field" style="margin-top:8px"><label>Dialog (opsional, maksimal 2 baris)</label>
+   ${(sc.lines||[]).map((ln,k)=>`<div class="dl">${ln.who==="n"?dot(-1):dot(+ln.who)}<select data-scene="${i}" data-line="${k}" data-lk="who" aria-label="Pembicara">${speakerOpts(ln.who)}</select><input type="text" data-scene="${i}" data-line="${k}" data-lk="text" value="${esc(ln.text)}" placeholder="Isi dialog" aria-label="Isi dialog"><button class="x" data-delline="${i}:${k}" aria-label="Hapus dialog">✕</button></div>`).join("")}
+   ${(sc.lines||[]).length<2?`<button class="ghost" data-addline="${i}" style="margin-top:6px">+ Tambah dialog</button>`:""}</div>
+  <div class="field" style="margin-top:8px"><label>Nyanyian (opsional, lirik buatan sendiri)</label>
+   <div class="dl">${sc.singWho==="n"?dot(-1):dot(+sc.singWho)}<select data-scene="${i}" data-k="singWho" aria-label="Penyanyi">${speakerOpts(sc.singWho)}</select><input type="text" data-scene="${i}" data-k="sing" value="${esc(sc.sing||"")}" placeholder="Ayo joget, ayo goyang, semua senang" aria-label="Lirik"><span></span></div></div>`:""}
   <div class="warn" id="w${i}">${warnHTML(i)}</div>
   ${S.scenes.length>1?`<button class="x" data-delscene="${i}" style="margin-top:6px">Hapus adegan</button>`:""}
  </div></div>`).join("")}
@@ -569,9 +640,9 @@ const VIEWS=[
 
 ()=>{if(TR.busy)return`<section class="panel"><h2>Prompt siap pakai</h2><div class="aibox" style="display:flex;gap:10px;align-items:center"><span class="spin"></span> Menerjemahkan isianmu ke bahasa Inggris…</div></section>`;
  if(!S.styles.includes(S.activeStyle))S.activeStyle=S.styles[0];const st=styleObj(S.activeStyle);
- const block=(tag,cls,title,text,id,kind)=>{const key=S.activeStyle+"|"+id;SRC[id]={text,kind};const pol=S.polished[key];const isPol=pol&&pol.src===text;
+ const block=(tag,cls,title,text,id,kind,note)=>{const key=S.activeStyle+"|"+id;SRC[id]={text,kind};const pol=S.polished[key];const isPol=pol&&pol.src===text;
   const aiBtn=kind?(isPol?`<button class="ai sm" data-unpolish="${id}">Kembalikan versi asli</button>`:`<button class="ai sm" data-polish="${id}">✨ Perbaiki</button>`):"";
-  return`<div class="pblock"><div class="ph"><span class="tag ${cls}">${title}${isPol?" · ✨ AI":""}</span><div class="btns">${aiBtn}<button class="copy" data-copy="${id}">Salin</button></div></div><pre class="p" id="${id}">${esc(isPol?pol.out:text)}</pre></div>`};
+  return`<div class="pblock"><div class="ph"><span class="tag ${cls}">${title}${isPol?" · ✨ AI":""}</span><div class="btns">${aiBtn}<button class="copy" data-copy="${id}">Salin</button></div></div><pre class="p" id="${id}">${esc(isPol?pol.out:text)}</pre>${note?`<p class="hint" style="margin:6px 0 0">${note}</p>`:""}</div>`};
  let html=`<section class="panel"><h2>Prompt siap pakai</h2><p class="lead">${S.scenes.length} adegan × ${S.styles.length} gaya. Pilih gaya di bawah, lalu salin prompt per adegan.</p>
  ${S.autoEn&&TR.err?`<div class="warn" style="margin-bottom:12px">Terjemahan otomatis gagal: ${esc(TR.err)} Prompt di bawah masih memakai isian aslimu. <button class="ai sm" id="retryTr">Coba lagi</button></div>`:""}
  ${S.autoEn&&!TR.err?(()=>{const n=trSources().filter(k=>S.tr[k]&&S.tr[k]!==k).length;
@@ -581,20 +652,37 @@ const VIEWS=[
  <div class="styletabs seg">${S.styles.map(id=>{const s=styleObj(id);return`<button class="${id===S.activeStyle?"on":""}" data-tab="${id}">${s.em} ${esc(s.name)}${S.hemat&&S.styles.length>1&&id===S.finalStyle?" ⭐":""}</button>`}).join("")}</div>`;
  const orig=st.id==="original";
  if(orig)html+=`<p class="hint">Gaya Ikuti gambar asli: hanya prompt Image → Video yang ditampilkan. Unggah gambarmu sendiri sebagai frame awal di Flow atau Canva.</p>`;
- if(!orig&&!povFirst())html+=`<div class="frame"><div class="bar"><h3>Referensi karakter</h3><small>Buat dulu, pakai sebagai acuan</small></div><div class="body">
-  ${S.chars.map((c,i)=>block("", "", "Sheet: "+(c.name.trim()||"Karakter "+(i+1)),promptSheet(st,c,i),`sh${i}`,"sheet")).join("")}</div></div>`;
  const testOnly=S.hemat&&S.styles.length>1&&S.finalStyle!==S.activeStyle;
  if(testOnly)html+=`<div class="aibox"><b>Mode uji gaya.</b> Gaya ini hanya ditampilkan untuk adegan 1, supaya kredit tidak habis untuk mencoba semua gaya di semua adegan. Kalau hasil adegan 1 sudah cocok, jadikan gaya final.<div style="margin-top:8px"><button class="ai" data-final="${S.activeStyle}">⭐ Jadikan gaya final</button></div></div>`;
  else if(S.hemat&&S.styles.length>1)html+=`<p class="hint">⭐ Ini gaya final, semua adegan ditampilkan. <button class="x" data-final="">Batalkan</button></p>`;
- (testOnly?S.scenes.slice(0,1):S.scenes).forEach((sc,i)=>{html+=`<div class="frame"><div class="bar"><h3>Adegan ${i+1}</h3><small>${esc(sc.shot)} · ${esc(sc.cam)}</small></div><div class="body">
-  ${S.modes.t2i&&!orig?block("","","Text → Image",promptT2I(st,sc,i),`t${i}`,"image"):""}
-  ${S.modes.i2v?block("","v","Image → Video",promptI2V(st,sc,i),`v${i}`,"video"):""}
-  ${S.modes.t2v&&!orig?block("","v","Text → Video",promptT2V(st,sc,i),`x${i}`,"t2v"):""}
- </div></div>`});
+ const useSheets=!orig&&(S.modes.t2i||S.modes.t2v);
+ const NUM=["①","②","③","④","⑤","⑥","⑦","⑧","⑨","⑩"];
+ const shown=testOnly?S.scenes.slice(0,1):S.scenes;
+ const sheetChars=useSheets?S.chars.filter(c=>shown.some(sc=>charsIn(sc.text).includes(c))):[];SHEET_ORDER=sheetChars;
+ if(sheetChars.length){
+  html+=`<div class="frame"><div class="bar"><h3>Sebelum adegan: Sheet karakter</h3><small>1 gambar, semua karakter</small></div><div class="body">`;
+  html+=block("","n",(shown.some(sc=>charsIn(sc.text).some(c=>costumeOf(sc,S.chars.indexOf(c))))?"① ":"")+"Sheet karakter: "+sheetChars.map(c=>c.name.trim()||"Karakter "+(S.chars.indexOf(c)+1)).join(", "),promptSheetAll(st,sheetChars),"shAll","sheet",
+   `${sheetChars.length>1?`<span style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px">${sheetChars.map((c,k)=>`<span class="chip">${dot(S.chars.indexOf(c))}Baris ${k+1}: ${esc(cname(S.chars.indexOf(c)))}</span>`).join("")}</span>`:""}Generate sekali saja, simpan sebagai <b>sheet-karakter</b>, lalu lampirkan gambar ini di setiap Text → Image.${sheetChars.length>4?" Lebih dari 4 karakter dalam satu gambar bisa membuat detailnya kurang jelas; ulangi generate kalau ada karakter yang terpotong.":""}`);
+  const used=[];shown.forEach(sc=>charsIn(sc.text).forEach(c=>{const ci=S.chars.indexOf(c);const k=sc.outfits&&sc.outfits[ci];const co=costumeOf(sc,ci);
+   if(co&&!used.some(u=>u.ci===ci&&u.k===+k))used.push({ci,k:+k,c,co})}));
+  used.forEach((u,j)=>{html+=block("","n",`${NUM[j+1]||"•"} Sheet kostum: ${cname(u.ci)} – ${u.co.name||"Kostum "+(u.k+1)}`,promptCostumeSheet(st,u.c,u.co),`sc${u.ci}_${u.k}`,"sheet",
+   `${dot(u.ci)}Lampirkan <b>sheet-karakter</b> sebagai source image, lalu simpan hasilnya sebagai <b>${esc(costumeFile(u.ci,u.co))}</b>. Selalu buat dari sheet-karakter asli, jangan dari sheet kostum lain. Generate beberapa kali dan pilih yang wajahnya paling mirip.`)});
+  html+=`</div></div>`;
+  if(S.modes.t2i&&S.modes.i2v)html+=`<p class="hint">Setelah sheet jadi, tiap adegan cukup dua langkah: <b>gambar adegan</b> (lampirkan sheet yang disebut di catatan), lalu <b>video</b> dari gambar adegan itu.</p>`}
+ shown.forEach((sc,i)=>{
+  const cs=useSheets?charsIn(sc.text):[];
+  let n=0;const step=t=>`${NUM[n++]||"•"} ${t}`;
+  const nm=c=>c.name.trim()||"Karakter "+(S.chars.indexOf(c)+1);
+  const allNames=cs.map(nm).map(esc).join(", ");
+  html+=`<div class="frame"><div class="bar"><h3>Adegan ${i+1}</h3><small>${esc(sc.shot)} · ${esc(sc.cam)}</small></div><div class="body">`;
+  if(S.modes.t2i&&!orig)html+=block("","",step("Text → Image (gambar adegan)"),promptT2I(st,sc,i),`t${i}`,"image",`${cs.length?attachNote(cs,sc):""}Simpan hasilnya sebagai <b>adegan-${i+1}</b>.`);
+  if(S.modes.i2v)html+=block("","v",step("Image → Video"),promptI2V(st,sc,i),`v${i}`,"video",(orig?"Unggah gambarmu sendiri sebagai frame awal.":S.modes.t2i?`Pakai gambar <b>adegan-${i+1}</b> sebagai frame awal.`:"Unggah gambar adegan ini sebagai frame awal.")+(S.audio&&(sc.lines||[]).some(l=>l.text.trim())?`<br>Dialog: ${sc.lines.filter(l=>l.text.trim()).map(l=>`${l.who==="n"?dot(-1):dot(+l.who)}<b>${esc(l.who==="n"?(povFirst()?"Suara POV":"Narator"):cname(+l.who))}</b>`).join(" → ")}`:""));
+  if(S.modes.t2v&&!orig)html+=block("","v",S.modes.i2v?"Alternatif: Text → Video":step("Text → Video"),promptT2V(st,sc,i),`x${i}`,"t2v",cs.length&&S.platform==="flow"?`Di Flow, ${attachNote(cs,sc).replace(/^Lampirkan/,"lampirkan").replace(/ sebagai referensi \(ingredient\)/," sebagai ingredient")}`:"");
+  html+=`</div></div>`});
  if(S.neg)html+=`<div class="frame"><div class="bar"><h3>Negative prompt</h3><small>Tempel jika platform menyediakan kolomnya</small></div><div class="body">
   ${S.modes.t2i&&!orig?block("","n","Untuk gambar",NEG_IMG,"ni"):""}${S.modes.i2v||S.modes.t2v?block("","n","Untuk video",NEG_VID+(S.hemat?", scene cuts, multiple actions in one clip":"")+(orig?", style change, cartoon filter, color shift, re-rendered look":""),"nv"):""}</div></div>`;
  html+=S.platform==="flow"?`<div class="tips"><h3>Cara pakai di Google Flow</h3><ol>
-  <li>Generate gambar <b>sheet karakter</b> dulu, simpan yang paling cocok sebagai acuan (ingredient).</li>
+  <li>Buat <b>sheet karakter</b> dulu (satu gambar berisi semua karakter dan berbagai pose), lalu ikuti urutan nomor di tiap adegan.</li>
   <li>Buat gambar tiap adegan dengan prompt Text → Image, sertakan gambar karakter sebagai referensi agar wajah dan baju konsisten.</li>
   <li>Pakai mode dari gambar ke video (frame awal), tempel prompt Image → Video untuk adegan yang sama.</li>
   <li>Tambahkan klip ke scene builder sesuai urutan nomor adegan, lalu sambung jadi satu film.</li>
@@ -669,7 +757,7 @@ async function runAI(id,btn){
   if(id==="aiScenes"){if(S.scenes.some(s=>s.text.trim())&&!confirm("Ganti semua adegan dengan alur buatan AI?"))return;
    const th=currentTheme();
    const r=await ai("scenes",{theme:th.name,setting:th.setting,mood:en(MOODS,S.mood),chars:S.chars.map(charDesc),count:S.sceneCount,idea:S.storyIdea,hemat:S.hemat,pov:pov()?{role:profObj().en,uniform:profObj().uniform,setting:profObj().setting,firstPerson:povFirst()}:null,dance:danceObj()?{name:danceObj().en,moves:danceObj().moves.map(fill),tempo:en(TEMPOS,S.dance.tempo),funny:S.dance.funny||danceObj().funny}:null},btn);
-   if(Array.isArray(r.scenes)&&r.scenes.length){S.scenes=r.scenes.map(s=>({text:s.text||"",shot:s.shot||"Medium shot",cam:s.cam||"Statis",dialog:s.dialog||"",sing:s.sing||""}));if(r.scenes.some(s=>s.sing))S.audio=true;if(r.scenes.some(s=>s.dialog))S.audio=true;render();toast(r.scenes.length+" adegan baru dari AI.")}}
+   if(Array.isArray(r.scenes)&&r.scenes.length){S.scenes=r.scenes.map(s=>normScene({text:s.text||"",shot:s.shot||"Medium shot",cam:s.cam||"Statis",dialog:s.dialog||"",sing:s.sing||""}));if(r.scenes.some(s=>s.sing))S.audio=true;if(r.scenes.some(s=>s.dialog))S.audio=true;render();toast(r.scenes.length+" adegan baru dari AI.")}}
  }catch(e){toast(e.message,true)}
 }
 async function polish(id,btn){const src=SRC[id];if(!src)return;
@@ -680,7 +768,7 @@ async function polish(id,btn){const src=SRC[id];if(!src)return;
 /* ---------------- AUTO TRANSLATE ---------------- */
 const TR={busy:false,err:""};
 function trSources(){const a=[];S.scenes.forEach(s=>a.push(s.text));if(pov()&&S.prof.type==="custom")a.push(S.prof.customName,S.prof.customUniform,S.prof.customPlace);
- S.chars.forEach(c=>["age","look","outfit","trait"].forEach(k=>a.push(c[k])));
+ S.chars.forEach(c=>{["age","look","outfit","trait"].forEach(k=>a.push(c[k]));(c.costumes||[]).forEach(co=>a.push(co.outfit))});
  if(S.theme==="custom")a.push(currentTheme().setting);
  if(S.styles.includes("custom"))a.push(S.customStyle);
  return[...new Set(a.map(x=>String(x||"").trim()).filter(Boolean))]}
@@ -712,7 +800,17 @@ document.addEventListener("click",e=>{const b=e.target.closest("button,[data-go]
  if(d.dance){if(S.dance.type!==d.dance){S.dance.type=d.dance;S.scenes=[]}render();return}
  if(d.tempo){S.dance.tempo=d.tempo;S.scenes=[];render();return}
  if(d.themePick){if(S.theme!==d.themePick){S.theme=d.themePick;S.scenes=[]}render();return}
- if(d.del){S.chars.splice(+d.del,1);render();return}
+ if(d.del){const k=+d.del;S.chars.splice(k,1);
+   const fix=w=>w==="n"?"n":(+w===k?"n":(+w>k?String(+w-1):w));
+   S.scenes.forEach(sc=>{(sc.lines||[]).forEach(l=>l.who=fix(l.who));if(sc.singWho!==undefined)sc.singWho=fix(sc.singWho);
+    const o={};Object.keys(sc.outfits||{}).forEach(key=>{const n=+key;if(n<k)o[n]=sc.outfits[key];else if(n>k)o[n-1]=sc.outfits[key]});sc.outfits=o});render();return}
+ if(d.addcos!==undefined){const c=S.chars[+d.addcos];c.costumes=c.costumes||[];c.costumes.push({name:"",outfit:""});render();
+   const ins=document.querySelectorAll(`[data-cos^="${d.addcos}:"][data-ck="name"]`);if(ins.length)ins[ins.length-1].focus();return}
+ if(d.delcos){const [ci,k]=d.delcos.split(":").map(Number);S.chars[ci].costumes.splice(k,1);
+   S.scenes.forEach(sc=>{const v=(sc.outfits||{})[ci];if(v===undefined||v==="")return;if(+v===k)delete sc.outfits[ci];else if(+v>k)sc.outfits[ci]=+v-1});render();return}
+ if(d.addline!==undefined){const sc=S.scenes[+d.addline];sc.lines=sc.lines||[];if(sc.lines.length<2){const prev=sc.lines[sc.lines.length-1];
+   const cs=charsIn(sc.text);const nxt=cs.find(c=>!prev||String(S.chars.indexOf(c))!==prev.who);sc.lines.push({who:nxt?String(S.chars.indexOf(nxt)):defaultWho(sc),text:""})}render();return}
+ if(d.delline){const [si,k]=d.delline.split(":").map(Number);S.scenes[si].lines.splice(k,1);render();return}
  if(d.delscene){S.scenes.splice(+d.delscene,1);render();return}
  if(d.tab){S.activeStyle=d.tab;render();return}
  if(d.final!==undefined){S.finalStyle=d.final;render();return}
@@ -721,9 +819,9 @@ document.addEventListener("click",e=>{const b=e.target.closest("button,[data-go]
  if(d.polish){polish(d.polish,b);return}
  if(d.unpolish){delete S.polished[S.activeStyle+"|"+d.unpolish];render();return}
  if(b.id==="aiSetting"||b.id==="aiChars"||b.id==="aiScenes"||b.id==="aiTranslate"){runAI(b.id,b);return}
- if(b.id==="addChar"){S.chars.push({name:"",type:"Anak perempuan",age:"",look:"",outfit:"",trait:""});render();
+ if(b.id==="addChar"){S.chars.push({name:"",type:"Anak perempuan",age:"",look:"",outfit:"",trait:"",costumes:[]});render();
    const ins=document.querySelectorAll('[data-k="name"]');ins[ins.length-1].focus();return}
- if(b.id==="addScene"){if(S.scenes.length>=12)return toast("Maksimal 12 adegan.",true);S.scenes.push({text:"",shot:"Medium shot",cam:"Statis",dialog:""});render();return}
+ if(b.id==="addScene"){if(S.scenes.length>=12)return toast("Maksimal 12 adegan.",true);S.scenes.push({text:"",shot:"Medium shot",cam:"Statis",lines:[],sing:"",singWho:"0"});render();return}
  if(b.id==="rebuild"){if(confirm("Ganti semua adegan dengan versi otomatis dari tema? Perubahanmu akan hilang.")){buildScenes();render()}return}
  if(b.id==="copyAll"){const t=[...document.querySelectorAll("#view .pblock")].map(p=>"### "+p.querySelector(".tag").textContent.replace(" · ✨ AI","")+"\n"+p.querySelector("pre").textContent).join("\n\n");copyText(t,b);return}
  if(b.id==="next"){S.step===STEPS.length-1?go(4):go(S.step+1);return}
@@ -735,7 +833,10 @@ document.addEventListener("input",e=>{const t=e.target,d=t.dataset;
  if(d.char!==undefined){S.chars[+d.char][d.k]=t.value;save();
    if(d.k==="name"){const av=t.parentElement.querySelector(".avatar");if(av)av.textContent=(t.value.trim()||"?")[0].toUpperCase()}
    if(d.k==="type")render();return}
- if(d.scene!==undefined){S.scenes[+d.scene][d.k]=t.value;save();const w=$("#w"+d.scene);if(w)w.innerHTML=warnHTML(+d.scene);updateSum();updateIdNote();return}
+ if(d.cos!==undefined){const [ci,k]=d.cos.split(":").map(Number);S.chars[ci].costumes[k][d.ck]=t.value;save();return}
+ if(d.scene!==undefined&&d.outfit!==undefined){const sc=S.scenes[+d.scene];sc.outfits=sc.outfits||{};if(t.value==="")delete sc.outfits[d.outfit];else sc.outfits[d.outfit]=+t.value;save();return}
+ if(d.scene!==undefined&&d.line!==undefined){const ln=S.scenes[+d.scene].lines[+d.line];ln[d.lk]=t.value;save();if(d.lk==="who"){render();return}const w=$("#w"+d.scene);if(w)w.innerHTML=warnHTML(+d.scene);updateSum();return}
+ if(d.scene!==undefined){S.scenes[+d.scene][d.k]=t.value;save();if(d.k==="singWho"){render();return}const w=$("#w"+d.scene);if(w)w.innerHTML=warnHTML(+d.scene);updateSum();updateIdNote();return}
 });
 document.addEventListener("change",e=>{const t=e.target;
  if(t.id==="audio"){S.audio=t.checked;render()} if(t.id==="neg"){S.neg=t.checked;save()} if(t.id==="hemat"){S.hemat=t.checked;render()} if(t.id==="autoEn"){S.autoEn=t.checked;render()} if(t.id==="danceFunny"){S.dance.funny=t.checked;S.scenes=[];render()} if(t.id==="danceOwn"){S.dance.ownSong=t.checked;save()}
@@ -746,6 +847,7 @@ function copyText(text,btn){const done=()=>{const o=btn.textContent;btn.textCont
    try{document.execCommand("copy");done()}catch(err){alert("Salin manual: tekan lama teksnya lalu pilih Salin.")}ta.remove()};
  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done,fallback);else fallback()}
 
+S.chars.forEach(c=>{if(!Array.isArray(c.costumes))c.costumes=[]});S.scenes.forEach(normScene);
 render();if(S.step===STEPS.length-1)autoTranslate();
 if(location.protocol!=="file:")fetch("/api/auth?action=status").then(r=>r.ok?r.json():null).then(j=>{if(j&&j.protected)$("#logoutBtn").hidden=false}).catch(()=>{});
 </script>

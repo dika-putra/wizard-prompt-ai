@@ -126,6 +126,7 @@ Return JSON: {"setting":"..."}`;
 - Add concrete visual detail: expressions, body language, environment details, depth, color accents${kind.includes("video") ? ", motion timing and camera behavior" : ""}.
 - ${short ? "Keep it compact: one paragraph, under 70 words." : "Keep the same labelled-line structure, under 170 words."}
 - English only (except quoted dialogue).
+- Keep any "Reference:" or "Starting frame:" line (or sentence about the attached character sheet) exactly as it is.
 ${d.hemat ? "- Credit-saving mode: keep exactly one action, do not add new actions, characters, text or signs, and keep camera motion simple." : ""}
 ${d.keepStyle ? "- The user animates their OWN image: never add art-style, rendering, lighting or color words. Keep the instruction to preserve the input image's original look exactly. Improve only motion, expression, camera and timing." : ""}
 

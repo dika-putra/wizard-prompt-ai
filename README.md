@@ -13,9 +13,9 @@ The app UI and the guides in `docs/` are in Indonesian.
 1. **Format**: prompt type (T2I, I2V, T2V), platform (Google Flow / Canva), aspect ratio (16:9, 9:16, 1:1), credit-saving mode, and automatic English prompts.
 2. **Style**: 12 ready-made styles (3D Cartoon Pixar, 2D Anime, Claymation, Chibi, Storybook, Wayang & Batik, and more), your own, or **Ikuti gambar asli** ("Follow the original image") to animate your own image without changing its style. You can pick several styles at once, plus mood and lighting.
 3. **Theme**: 10 ready-made story themes (forest, Ramadan, village, outer space, fable, and more), a **Joget & Dance** theme (14 dance types including funny ones, with tempo and venue options), a **POV Profesi** theme (16 professions, first-person view or characters in uniform), or a custom one.
-4. **Characters**: any number, each with name, type, age, appearance, clothing, and personality.
+4. **Characters**: any number, each with name, type, age, appearance, clothing, personality, and extra costumes that can be picked per scene.
 5. **Scenes**: 1 to 12 scenes (about 8 seconds each), filled in automatically from the theme and editable; shot type, camera movement, dialogue, and singing lines per scene.
-6. **Result**: prompts per style and per scene, a *character sheet* prompt, a negative prompt, copy buttons, and a usage guide.
+6. **Result**: prompts per style and per scene, starting with one combined character sheet (one image, all characters, several poses), then numbered steps per scene (scene image with the sheet as reference → video from the scene image), a negative prompt, copy buttons, and a usage guide.
 
 **AI features** (need a deployment with an API key)
 

@@ -9,12 +9,30 @@
 5. **Adegan**: pilih jumlah adegan (1 adegan ≈ 8 detik; pilih 1 untuk video pendek atau satu klip), lalu edit adegan otomatis, atau tulis ide cerita lalu klik **Buat alur adegan dengan AI**. Perbaiki adegan yang mendapat peringatan.
 6. **Hasil**: salin prompt per adegan dan tempel ke platform.
 
+## Penanda karakter & dialog
+
+- Setiap karakter punya nomor dan warna tetap (lihat chip "Karakter 1" di langkah Karakter). Warna yang sama dipakai di pilihan pembicara dialog dan di catatan halaman Hasil.
+- Di langkah **Adegan**, klik **+ Tambah dialog** (maksimal 2 baris), pilih pembicaranya, lalu tulis kalimatnya. Pilih **Narator** (atau **Suara POV** di mode POV) untuk suara tanpa wujud di layar.
+- Di prompt video, pembicara ditulis bersama ciri visualnya, misalnya `Kiko (the young boy in yellow t-shirt)`, supaya model tahu bibir siapa yang bergerak.
+- Di sheet karakter gabungan, karakter disusun per baris dari atas. Catatan di halaman Hasil menunjukkan "Baris 1: Kiko, Baris 2: Mira", dan prompt Text → Image menyebut baris yang sama.
+
+## Ganti kostum di adegan tertentu
+
+1. Di langkah **Karakter**, klik **+ Tambah kostum** pada karakter, lalu isi nama kostum (misalnya "Piyama") dan deskripsi pakaiannya. Pakaian yang sudah diisi sebelumnya menjadi kostum **Utama**.
+2. Di langkah **Adegan**, pilih kostum karakter untuk adegan itu.
+3. Di halaman **Hasil**, bagian "Sebelum adegan" berisi ① sheet karakter utama dan ② dst. sheet kostum. Buat sheet kostum dengan **sheet-karakter asli** sebagai source image (jangan dari sheet kostum lain), generate beberapa kali, lalu pilih yang wajahnya paling mirip.
+4. Catatan di tiap adegan memberi tahu sheet mana yang harus dilampirkan untuk tiap karakter.
+
+Sheet kostum hanya dibuat untuk kostum yang benar-benar dipakai, dan cukup sekali walaupun kostum itu muncul di beberapa adegan. Karena dibuat ulang dari gambar, wajah bisa sedikit bergeser. Karena itu, pilih hasil yang paling mirip sebelum dipakai.
+
 ## Di Google Flow
 
-1. Generate gambar dari prompt **sheet karakter**, lalu simpan yang paling cocok sebagai acuan (ingredient).
-2. Generate gambar tiap adegan dengan prompt **Text → Image**, sertakan gambar karakter sebagai referensi.
-3. Hidupkan gambar dengan prompt **Image → Video** untuk adegan yang sama.
+1. **Sebelum adegan, buat sheet karakter**: satu prompt untuk satu gambar berisi semua karakter, masing-masing dengan turnaround (depan, tiga perempat, samping, belakang), beberapa pose, dan tiga ekspresi. Generate sekali, pilih yang paling cocok, lalu simpan sebagai `sheet-karakter`. Lebih dari 4 karakter dalam satu gambar bisa membuat detailnya kurang jelas.
+2. **Tiap adegan, ① Text → Image**: lampirkan `sheet-karakter` sebagai referensi (ingredient), lalu simpan hasilnya sebagai `adegan-N`. Prompt sudah berisi baris `Reference:`.
+3. **Tiap adegan, ② Image → Video**: pakai gambar `adegan-N` sebagai frame awal. Prompt sudah berisi baris `Starting frame:`.
 4. Susun klip di scene builder sesuai nomor adegan.
+
+Jika Text → Video juga dinyalakan, prompt-nya muncul sebagai "Alternatif: Text → Video". Di Flow, sheet karakter bisa dilampirkan sebagai ingredient.
 
 ## Di Canva
 
