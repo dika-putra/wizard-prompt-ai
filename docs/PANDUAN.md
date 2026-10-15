@@ -6,7 +6,7 @@
 2. **Gaya**: pilih satu gaya, atau beberapa jika ingin membandingkan.
 3. **Tema**: pilih tema siap pakai, atau buat tema baru lalu klik **Buatkan deskripsi latar dengan AI**.
 4. **Karakter**: isi secukupnya dalam bahasa Indonesia, lalu klik **Rapikan & terjemahkan dengan AI** agar detail visualnya lengkap.
-5. **Adegan**: edit adegan otomatis, atau tulis ide cerita lalu klik **Buat alur adegan dengan AI**. Perbaiki adegan yang mendapat peringatan.
+5. **Adegan**: pilih jumlah adegan (1 adegan ≈ 8 detik; pilih 1 untuk video pendek atau satu klip), lalu edit adegan otomatis, atau tulis ide cerita lalu klik **Buat alur adegan dengan AI**. Perbaiki adegan yang mendapat peringatan.
 6. **Hasil**: salin prompt per adegan dan tempel ke platform.
 
 ## Di Google Flow
@@ -35,6 +35,23 @@ Gunakan gaya ini jika kamu sudah punya gambar, misalnya foto, ilustrasi buatan s
 5. Di halaman **Hasil**, hanya prompt Image → Video yang muncul. Unggah gambarmu sebagai frame awal, lalu tempel prompt-nya.
 
 Prompt dengan gaya ini secara tegas meminta model mempertahankan gaya, warna, pencahayaan, dan detail gambar input. Negative prompt video juga ditambah larangan perubahan gaya. Tombol **✨ Perbaiki** tidak akan menambahkan kata-kata gaya.
+
+## Joget & dance
+
+1. Di langkah **Tema**, pilih **💃 Joget & Dance**, lalu pilih jenis joget, tempo, dan tempat.
+   - Joget lucu: kocak kartun, goyang bebek, robot kaku, goyang ulat, dan dance battle kocak (cocok untuk 2 karakter).
+   - Lainnya: dangdut, poco-poco, jaipong, saman, K-pop, hip hop, joget viral, senam ceria, dan balet.
+2. Centang **Tambah unsur lucu** untuk ekspresi konyol dan timing lebay. Opsi ini selalu aktif untuk joget lucu.
+3. Centang **Pakai lagu sendiri nanti** jika ingin menempel lagu sendiri saat editing. Prompt akan meminta video tanpa musik.
+4. Di langkah **Adegan**, setiap adegan berisi satu gerakan. Kolom **Nyanyian** bisa diisi lirik pendek buatan sendiri (maksimal ±12 kata).
+
+Hal yang perlu diketahui:
+
+- Flow membuat melodi nyanyiannya sendiri, jadi tidak bisa mengikuti melodi lagu yang sudah ada.
+- Untuk menyamakan gerakan dengan lagu, tempel lagu di Canva atau editor video, lalu potong klip tepat di ketukan.
+- Untuk gerak bibir yang sinkron dengan lagu asli, pakai aplikasi lip sync khusus yang menerima file audio, setelah klipnya jadi.
+- Hindari putaran, salto, dan lompatan. Gerakan di tempat dengan kamera wide statis paling stabil.
+- Lagu terkenal bisa kena klaim hak cipta di platform video. Gunakan musik bebas lisensi atau dari perpustakaan musik platform.
 
 ## Tips hemat kredit
 

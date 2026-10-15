@@ -59,10 +59,11 @@ Dipakai tombol **Buat alur adegan dengan AI**.
 Hasil:
 
 ```json
-{ "scenes": [ { "text": "...", "shot": "Wide shot", "cam": "Statis", "dialog": "Kiko: \"Ayo!\"" } ] }
+{ "scenes": [ { "text": "...", "shot": "Wide shot", "cam": "Statis", "dialog": "Kiko: \"Ayo!\"", "sing": "" } ] }
 ```
 
 - `count` dibatasi 1–12.
+- `dance` (opsional): `{ "name": "funny duck-style", "moves": ["..."], "tempo": "medium groovy tempo", "funny": true }`. Jika diisi, model membuat adegan joget (1–2 gerakan per adegan, wide shot, kamera statis), dan setiap adegan bisa berisi `sing`, yaitu lirik pendek orisinal berbahasa Indonesia (bukan lirik lagu yang sudah ada).
 - `shot` dan `cam` divalidasi terhadap daftar label di server. Nilai yang tidak dikenal diganti `Medium shot` / `Statis`.
 - Dengan `hemat: true`, aturan mode hemat kredit ikut dikirim ke model.
 

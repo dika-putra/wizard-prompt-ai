@@ -233,9 +233,50 @@ const THEMES=[
   beats:["sweeping view of the futuristic city at dawn, {A} on a rooftop","{A} rides a hover-board through busy sky lanes","{ALL} discover the city's power is going out","{A} and {B} race to fix the giant energy core","the city lights up again and {ALL} celebrate"]},
  {id:"beach",em:"🏖️",name:"Liburan ke pantai",setting:"a sunny tropical beach with white sand, turquoise water, palm trees and colorful umbrellas",
   beats:["{ALL} run toward the sea with excitement","{A} and {B} build a giant sandcastle","a wave suddenly washes the sandcastle away, everyone gasps","{ALL} laugh and build an even bigger one","{ALL} watch the orange sunset over the sea"]},
+ {id:"dance",em:"💃",name:"Joget & Dance",setting:"",beats:[]},
  {id:"custom",em:"✨",name:"Buat tema baru",setting:"",beats:[]}
 ];
 
+const DANCES=[
+ {id:"kartun",en:"goofy cartoon",em:"🤪",name:"Joget kocak kartun",desc:"Lucu, lentur, lebay",funny:true,
+  moves:["wobbly noodle-arm dance with knees bouncing","bouncing up and down like a spring with a goofy face","wiggling their bottom side to side to the beat","a silly side-step shuffle with arms flapping"],end:"a ta-da pose with jazz hands",music:"goofy cartoon dance music with boings, slide whistles and a bouncy tuba"},
+ {id:"bebek",en:"funny duck-style",em:"🦆",name:"Goyang bebek",desc:"Kepak sayap & megal-megol",funny:true,
+  moves:["flapping their elbows like duck wings","waddling side to side with knees bent","bobbing their heads forward and back like a duck","wiggling their tail end with a proud face"],end:"a proud duck pose, chests puffed out",music:"silly polka dance music with playful quack sounds"},
+ {id:"robot",en:"stiff robot",em:"🤖",name:"Joget robot kaku",desc:"Gerak patah-patah",funny:true,
+  moves:["stiff robotic arm movements with sudden stops","turning their heads in small mechanical clicks","a smooth backward sliding step like gliding on ice","a stiff robotic wave passing from one arm to the other"],end:"a frozen robot pose with one eyebrow raised",music:"funky electronic robot beat with bleeps and bloops"},
+ {id:"ulat",en:"wiggly caterpillar wave",em:"🐛",name:"Goyang ulat",desc:"Badan bergelombang",funny:true,
+  moves:["a wave motion rolling through the whole body from head to toe","shoulders rolling in a funny wave while grinning","swaying slowly like a caterpillar on a leaf","a wiggly wave passing through the arms"],end:"a curled-up caterpillar pose, giggling",music:"funky slap-bass groove with a playful beat"},
+ {id:"battle",en:"comedic dance battle",em:"⚔️",name:"Dance battle kocak",desc:"Adu joget paling konyol",funny:true,
+  moves:["{A} faces {B} and shows off a dramatic silly move","{B} answers with an even sillier wiggle","{A} tries to copy it badly with a confused face","{A} and {B} dance the same goofy move together in sync"],end:"a high-five and a shared victory pose",music:"funky dance battle beat with crowd-style cheers"},
+ {id:"senam",en:"cheerful morning exercise (senam)",em:"🤸",name:"Senam ceria",desc:"Seperti senam pagi",funny:false,
+  moves:["marching in place while swinging arms","arms raised up and down in rhythm","side steps with clapping overhead","small jumping jacks with big smiles"],end:"arms stretched high in a victory pose",music:"upbeat morning exercise music with a clear count"},
+ {id:"dangdut",en:"Indonesian dangdut joget",em:"🎤",name:"Joget dangdut",desc:"Goyang santai khas dangdut",funny:false,
+  moves:["swaying hips side to side with bent elbows","rolling hands in front of the chest to the beat","small side steps with a cheeky smile","pointing a finger up and down rhythmically"],end:"a cheeky pose pointing at the camera",music:"upbeat dangdut music with kendang drums and suling flute"},
+ {id:"poco",en:"Indonesian poco-poco line dance",em:"👣",name:"Poco-poco",desc:"Langkah barisan bersama",funny:false,
+  moves:["the poco-poco step pattern: step right, cross over, step back","turning a quarter while clapping","arms swinging forward and back with the steps","stepping together in a neat line"],end:"a group clap and a wave",music:"cheerful poco-poco line dance music"},
+ {id:"jaipong",en:"Sundanese jaipong traditional",em:"🧣",name:"Jaipong",desc:"Tari Sunda yang luwes",funny:false,
+  moves:["graceful flicks of a selendang scarf","sharp head and shoulder accents on the drum beat","a low bent-knee stance with elegant hand flourishes","small turning steps with the scarf flowing"],end:"an elegant closing pose holding the scarf",music:"Sundanese jaipong music with lively kendang drums"},
+ {id:"saman",en:"Acehnese Saman seated",em:"👏",name:"Saman (duduk)",desc:"Tepuk kompak sambil duduk",funny:false,
+  moves:["sitting in a row, rapid synchronized clapping on chest and thighs","torsos swaying left and right in a wave","heads nodding in perfect unison","alternating claps passing down the row"],end:"a final unified clap with hands raised",music:"rhythmic Acehnese chanting with body percussion"},
+ {id:"kpop",en:"K-pop style",em:"✨",name:"Dance ala K-pop",desc:"Tegas, kompak, keren",funny:false,
+  moves:["sharp synchronized arm points","a hip roll into a freeze pose","a small hop with a shoulder shimmy","making heart hands to the camera"],end:"a cool group ending pose",music:"catchy pop dance track with a strong beat"},
+ {id:"hiphop",en:"hip hop",em:"🧢",name:"Hip hop",desc:"Groove santai",funny:false,
+  moves:["a bouncing groove from the knees","arm waves passing through the body","a side shuffle step","a confident shoulder bounce"],end:"a cool crossed-arms pose",music:"hip hop beat with a heavy kick drum"},
+ {id:"viral",en:"viral social-media",em:"📱",name:"Joget viral",desc:"Koreo tangan simpel",funny:false,
+  moves:["simple hand choreography close to the camera","point left, point right and clap","a shoulder shimmy with a wink","a little bounce while waving both hands"],end:"a cute pose with a peace sign",music:"catchy viral pop beat"},
+ {id:"balet",en:"ballet",em:"🩰",name:"Balet",desc:"Anggun & lembut",funny:false,
+  moves:["arms moving in graceful arcs","rising onto tiptoes slowly","a small gentle leap","a slow elegant bow of the arms"],end:"a graceful curtsy",music:"gentle classical piano and strings"}
+];
+const VENUES=[["Panggung 17-an","a village Independence Day stage decorated with red and white flags and bunting"],["Halaman kampung","a cozy kampung front yard with potted plants and a wooden fence"],["Studio warna-warni","a colorful dance studio with neon lights and mirrors"],["Pesta ulang tahun","a birthday party room with balloons and streamers"],["Alun-alun malam","a town square at night with warm string lights"],["Pantai","a sunny tropical beach with palm trees"],["Ruang kelas","a classroom with the desks pushed aside"]];
+const TEMPOS=[["Pelan","slow relaxed tempo"],["Sedang","medium groovy tempo"],["Cepat","fast energetic tempo"]];
+const danceObj=()=>S.theme==="dance"?(DANCES.find(x=>x.id===S.dance.type)||DANCES[0]):null;
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+function danceBeats(dz){const f=S.dance.funny||dz.funny;const m=dz.moves;
+ return[m[0].includes("{A}")?`Music starts and the dance battle begins: ${m[0]}${f?", with goofy grins":""}`:`Music starts and the dance begins: ${m[0]}, performed by {ALL}${f?", with goofy grins":""}`,
+  ...m.slice(1).map(x=>x.includes("{A}")?x+(f?", exaggerated funny expressions":""):`${cap(x)}, performed by {ALL}${f?", exaggerated funny expressions":""}`),
+  `Final pose: ${dz.end}, by {ALL}${f?", everyone bursting into laughter":""}`]}
+function danceLine(){const dz=danceObj();if(!dz)return"";const f=S.dance.funny||dz.funny;
+ return`\nDance: ${dz.en} dance, ${en(TEMPOS,S.dance.tempo)}; full body clearly visible, rhythmic movement on the beat, hands and feet stay anatomically correct${f?"; comedic exaggerated cartoon timing and funny facial expressions":""}.`}
 const GENERIC_BEATS=[
  "establishing shot of {SET}, setting the mood",
  "{A} is introduced, doing something that shows their personality",
@@ -258,10 +299,10 @@ const fresh=()=>({step:0,modes:{t2i:true,i2v:true,t2v:false},platform:"flow",ar:
   styles:["pixar"],customStyle:"",theme:"forest",customTheme:{name:"",setting:""},
   mood:"Ceria",light:"Golden hour",audio:true,neg:true,
   chars:[{name:"Kiko",type:"Anak laki-laki",age:"7 tahun",look:"short messy black hair, warm brown skin, round cheeks",outfit:"yellow t-shirt and blue shorts, red sneakers",trait:"curious and cheerful"}],
-  scenes:[],activeStyle:"pixar",storyIdea:"",sceneCount:"5",polished:{},hemat:true,finalStyle:"",autoEn:true,tr:{}});
+  scenes:[],activeStyle:"pixar",storyIdea:"",sceneCount:"5",polished:{},hemat:true,finalStyle:"",autoEn:true,tr:{},dance:{type:"kartun",tempo:"Sedang",venue:"Panggung 17-an",funny:true,ownSong:false}});
 let S;
 try{S=JSON.parse(localStorage.getItem(KEY))||fresh()}catch(e){S=fresh()}
-S=Object.assign(fresh(),S);
+S=Object.assign(fresh(),S);S.dance=Object.assign(fresh().dance,S.dance||{});
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 
 /* ---------------- HELPERS ---------------- */
@@ -273,12 +314,28 @@ function joinNames(arr){if(!arr.length)return"the characters";if(arr.length===1)
 function fill(t){const n=names();const th=currentTheme();
   return t.replaceAll("{A}",n[0]||"the main character").replaceAll("{B}",n[1]||"a friend").replaceAll("{ALL}",joinNames(n))
    .replaceAll("{SET}",th.setting||"the world").replaceAll("{THEME}",th.name||"the story")}
-function currentTheme(){if(S.theme==="custom")return{name:S.customTheme.name.trim(),setting:S.customTheme.setting.trim()||S.customTheme.name.trim(),beats:GENERIC_BEATS};
+function currentTheme(){if(S.theme==="dance"){const dz=danceObj();return{name:"Joget "+dz.name.replace(/^Joget /,""),setting:en(VENUES,S.dance.venue),beats:danceBeats(dz)}}
+  if(S.theme==="custom")return{name:S.customTheme.name.trim(),setting:S.customTheme.setting.trim()||S.customTheme.name.trim(),beats:GENERIC_BEATS};
   const t=THEMES.find(x=>x.id===S.theme)||THEMES[0];return{name:t.name,setting:t.setting,beats:t.beats}}
 const isOriginal=()=>S.styles.length===1&&S.styles[0]==="original";
 function styleObj(id){const s=STYLES.find(x=>x.id===id);if(id==="custom")return{...s,name:"Gaya sendiri",look:T(S.customStyle)||"unique custom art style",motion:"smooth animation consistent with the art style"};return s}
-function buildScenes(){const beats=currentTheme().beats;
-  S.scenes=beats.map((b,i)=>({text:fill(b),shot:i===0||i===beats.length-1?"Wide shot":(i%2?"Medium shot":"Close-up"),cam:i===0?"Drone dari atas":(i===beats.length-1?"Zoom out":(i%2?"Ikuti karakter":"Zoom in perlahan")),dialog:""}));save()}
+function pickBeats(n){const b=currentTheme().beats;if(n<=0)return[];
+ if(n===1)return[b[Math.floor((b.length-1)/2)]];
+ if(n<=b.length)return Array.from({length:n},(_,k)=>b[Math.round(k*(b.length-1)/(n-1))]);
+ const extra=GENERIC_BEATS.filter(x=>!b.includes(x));const out=b.slice(0,-1);
+ for(let k=0;out.length<n-1;k++)out.push(extra[k%extra.length]);out.push(b[b.length-1]);return out}
+function autoScene(text,i,n){if(S.theme==="dance")return{text:fill(text),shot:i===n-1&&n>1?"Medium shot":"Wide shot",cam:i===n-1&&n>1?"Zoom in perlahan":"Statis",dialog:"",sing:""};
+ if(n===1)return{text:fill(text),shot:"Medium shot",cam:"Zoom in perlahan",dialog:""};
+ return{text:fill(text),shot:i===0||i===n-1?"Wide shot":(i%2?"Medium shot":"Close-up"),cam:i===0?"Drone dari atas":(i===n-1?"Zoom out":(i%2?"Ikuti karakter":"Zoom in perlahan")),dialog:""}}
+function buildScenes(){const n=Math.min(Math.max(parseInt(S.sceneCount,10)||5,1),12);
+  S.scenes=pickBeats(n).map((b,i)=>autoScene(b,i,n));save()}
+function resizeScenes(){const n=Math.min(Math.max(parseInt(S.sceneCount,10)||1,1),12);const cur=S.scenes.length;
+ if(n<cur){const lost=S.scenes.slice(n).filter(s=>s.text.trim()).length;
+  if(lost&&!confirm(`Adegan ${n+1}–${cur} akan dihapus. Lanjutkan?`)){S.sceneCount=String(cur);render();return}
+  S.scenes=S.scenes.slice(0,n)}
+ else if(n>cur){const used=new Set(S.scenes.map(s=>s.text));const pool=pickBeats(12).map(fill).filter(t=>!used.has(t));
+  for(let i=cur;i<n;i++){const t=pool.shift();S.scenes.push(t?{...autoScene(t,i,n),text:t}:{text:"",shot:"Medium shot",cam:"Statis",dialog:""})}}
+ render()}
 function T(x){const k=String(x||"").trim();return(S.autoEn&&S.tr[k])||k}
 function charDesc(c,i){const t=en(CHAR_TYPES,c.type);const parts=[t];if(c.age.trim())parts.push(T(c.age));if(c.look.trim())parts.push(T(c.look));if(c.outfit.trim())parts.push("wearing "+T(c.outfit));if(c.trait.trim())parts.push(T(c.trait)+" personality");
   return`${c.name.trim()||"Character "+(i+1)} (${parts.join(", ")})`}
@@ -288,7 +345,8 @@ function charsIn(text){const low=text.toLowerCase();const hit=S.chars.filter(c=>
 const NEG_IMG="blurry, low quality, distorted face, extra limbs, extra fingers, deformed hands, text, watermark, logo, inconsistent character design, cropped head";
 const NEG_VID="morphing, flickering, character design changing between frames, distorted faces, extra limbs, jittery motion, text overlays, watermark";
 const short=()=>S.platform==="canva";
-const HEMAT_V="\nSingle continuous shot with one action only, no cuts. Subtle, controlled motion.";
+const HEMAT_V_BASE="\nSingle continuous shot with one action only, no cuts. Subtle, controlled motion.";
+const HEMAT_V_DANCE="\nSingle continuous shot, no cuts. Clear, controlled dance moves that stay in place, no spins or jumps.";
 const RISKY_CAMS=["Orbit","Drone dari atas","Handheld"];
 function sceneWarnings(i){const sc=S.scenes[i];if(!S.hemat||!sc)return[];const w=[];const t=sc.text.toLowerCase();
  const named=S.chars.filter(c=>c.name.trim()&&t.includes(c.name.trim().toLowerCase())).length;
@@ -301,6 +359,10 @@ function sceneWarnings(i){const sc=S.scenes[i];if(!S.hemat||!sc)return[];const w
  if(RISKY_CAMS.includes(sc.cam)&&i>0&&i<S.scenes.length-1)w.push(`Kamera "${sc.cam}" rawan membuat karakter berubah bentuk. Pakai untuk pembuka atau penutup saja, atau ganti ke Statis / Zoom in perlahan.`);
  if(/\b(text|sign|signs|letters|writing|banner|tulisan|papan nama|spanduk)\b/.test(t))w.push("Tulisan di dalam gambar sering rusak. Tambahkan teks belakangan di Canva atau editor video.");
  if(/\b(eat|eats|eating|drink|drinks|drinking|makan|minum)\b/.test(t))w.push("Adegan makan atau minum sering terlihat aneh. Tampilkan momen sebelum atau sesudahnya.");
+ if(/\b(spin|spins|spinning|twirl|twirls|twirling|flip|flips|backflip|breakdance|handstand|cartwheel|headspin|berputar|putar|salto|kayang|jungkir)\b/.test(t))w.push("Gerakan berputar atau akrobat sering membuat tangan dan kaki berubah bentuk. Ganti dengan gerakan di tempat.");
+ if(S.theme==="dance"){if(sc.shot==="Close-up"||sc.shot==="Over the shoulder")w.push("Untuk joget, pakai Wide shot atau Medium shot supaya seluruh badan terlihat.");
+  if(["Ikuti karakter","Close-up wajah"].includes(sc.cam))w.push(`Kamera "${sc.cam}" kurang cocok untuk joget. Pakai Statis supaya gerakan terlihat jelas.`)}
+ if(S.audio&&(sc.sing||"").trim()){const n=sc.sing.trim().split(/\s+/).length;if(n>12)w.push(`Lirik ${n} kata. Untuk klip 8 detik idealnya maksimal 12 kata supaya gerak bibir jelas.`)}
  if(/\b(crowd|many people|kerumunan|ramai|orang banyak)\b/.test(t))w.push("Kerumunan banyak orang yang bergerak rawan berantakan. Fokuskan ke 1–2 karakter utama.");
  return w}
 function warnHTML(i){const w=sceneWarnings(i);return w.length?`<ul>${w.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}
@@ -334,22 +396,25 @@ function updateSum(){const el=$("#hsum");if(!el)return;const n=S.scenes.reduce((
 
 function promptT2I(st,sc,i){const th=currentTheme();const cs=charsIn(sc.text).map(c=>charDesc(c,S.chars.indexOf(c)));
   if(short())return`${st.look.split(",").slice(0,3).join(",")}. ${T(sc.text)}, in ${T(th.setting)}. ${cs.join("; ")}. ${en(LIGHTS,S.light)}, ${en(MOODS,S.mood)} mood. ${S.ar}.${S.hemat?" No text.":""}`;
-  let p=`${en(SHOTS,sc.shot)}, ${st.look}.\n\nScene ${i+1}: ${T(sc.text)}.\nSetting: ${T(th.setting)}.\nCharacters: ${cs.join("; ")}.\nLighting & mood: ${en(LIGHTS,S.light)}, ${en(MOODS,S.mood)} atmosphere.\nComposition: clear readable staging, characters as the focal point, cinematic framing, aspect ratio ${S.ar}.\nKeep every character's face, hair, colors and outfit exactly consistent across all scenes.${S.hemat?"\nNo text, letters or signs anywhere in the image.":""}`;
+  let p=`${en(SHOTS,sc.shot)}, ${st.look}.\n\nScene ${i+1}: ${T(sc.text)}.\nSetting: ${T(th.setting)}.\nCharacters: ${cs.join("; ")}.\nLighting & mood: ${en(LIGHTS,S.light)}, ${en(MOODS,S.mood)} atmosphere.\nComposition: clear readable staging, characters as the focal point, cinematic framing, aspect ratio ${S.ar}.\nKeep every character's face, hair, colors and outfit exactly consistent across all scenes.${danceObj()?"\nPose: mid-dance pose, full body visible, feet on the ground.":""}${S.hemat?"\nNo text, letters or signs anywhere in the image.":""}`;
   return p}
 function promptI2V(st,sc,i){const cs=charsIn(sc.text);
   if(st.id==="original"){const who=joinNames(cs.map(c=>c.name.trim()||"the character"));
    let o=short()
     ?`Animate this image: ${T(sc.text)}. ${en(CAMS,sc.cam)}. Keep the exact original style, colors and lighting of the image, do not restyle.`
     :`Animate this image (scene ${i+1}).\nAction: ${T(sc.text)}, with natural believable movement and clear emotions.\nCamera: ${en(CAMS,sc.cam)}.\nStyle: preserve the exact art style, colors, lighting, textures and character design of the input image. Do not restyle, cartoonize, re-render or change the look in any way. Only add motion.\nMotion: ${st.motion}.\nMood: ${en(MOODS,S.mood)}.\nConsistency: keep ${who}, the background and all details identical to the input image, no morphing or design changes.`;
-   if(S.hemat)o+=HEMAT_V;if(S.audio)o+=audioLine(sc,cs);return o}
+   o+=danceLine();if(S.hemat)o+=(danceObj()?HEMAT_V_DANCE:HEMAT_V_BASE);if(S.audio)o+=audioLine(sc,cs);return o}
   let p=short()
    ?`Animate this image: ${T(sc.text)}. ${en(CAMS,sc.cam)}. ${st.motion}. ${en(MOODS,S.mood)} mood.`
    :`Animate this image (scene ${i+1}).\nAction: ${T(sc.text)}, with natural believable movement and clear emotions.\nCamera: ${en(CAMS,sc.cam)}.\nStyle & motion: ${st.motion}, keep the exact art style of the input image.\nMood: ${en(MOODS,S.mood)}.\nConsistency: keep ${joinNames(cs.map(c=>c.name.trim()||"the character"))} identical to the reference image, no morphing or design changes.`;
-  if(S.hemat)p+=HEMAT_V;if(S.audio)p+=audioLine(sc,cs);return p}
+  p+=danceLine();if(S.hemat)p+=(danceObj()?HEMAT_V_DANCE:HEMAT_V_BASE);if(S.audio)p+=audioLine(sc,cs);return p}
 function promptT2V(st,sc,i){const th=currentTheme();const cs=charsIn(sc.text).map(c=>charDesc(c,S.chars.indexOf(c)));
   let p=`${en(SHOTS,sc.shot)}, ${st.look}.\nScene ${i+1}: ${T(sc.text)}, in ${T(th.setting)}.\nCharacters: ${cs.join("; ")}.\nCamera: ${en(CAMS,sc.cam)}. Motion: ${st.motion}.\nLighting & mood: ${en(LIGHTS,S.light)}, ${en(MOODS,S.mood)}. Aspect ratio ${S.ar}.`;
-  if(S.hemat)p+=HEMAT_V;if(S.audio)p+=audioLine(sc,charsIn(sc.text));return p}
-function audioLine(sc,cs){let a=`\nAudio: ${en(MOODS,S.mood)} background music, natural ambient sounds of the scene`;
+  p+=danceLine();if(S.hemat)p+=(danceObj()?HEMAT_V_DANCE:HEMAT_V_BASE);if(S.audio)p+=audioLine(sc,charsIn(sc.text));return p}
+function audioLine(sc,cs){const dz=danceObj();
+  const music=dz?(S.dance.ownSong?"no background music, only light ambient sound (a song will be added in editing)":dz.music+", clear steady beat"):`${en(MOODS,S.mood)} background music`;
+  let a=`\nAudio: ${music}, natural ambient sounds of the scene`;
+  const sg=(sc.sing||"").trim();if(sg){const who=(cs[0]&&cs[0].name.trim())||"The character";a+=`. ${who} sings: "${sg}", with clear lip movements matching the words`}
   const d=sc.dialog.trim();if(d){const who=(cs[0]&&cs[0].name.trim())||"The character";
     a+=d.includes(":")?`. Dialogue: ${d}`:`. ${who} says: "${d}"`}return a+"."}
 function promptSheet(st,c,i){return`Character reference sheet, ${st.look}. ${charDesc(c,i)}. Full body turnaround showing front view, three-quarter view, side view and back view, plus 3 facial expressions (happy, surprised, sad). Neutral standing pose, plain white background, even lighting, no text.`}
@@ -388,10 +453,15 @@ const VIEWS=[
 </section>`,
 
 ()=>`<section class="panel"><h2>Pilih tema cerita</h2><p class="lead">Tema menentukan latar tempat dan alur adegan awal. Semua adegan masih bisa diubah di langkah Adegan.</p>
- <div class="tiles">${THEMES.map(t=>tile(S.theme===t.id,t.em,t.name,t.id==="custom"?"Tulis latar & ide sendiri":t.beats.length+" adegan siap pakai",`data-theme-pick="${t.id}"`)).join("")}</div>
+ <div class="tiles">${THEMES.map(t=>tile(S.theme===t.id,t.em,t.name,t.id==="custom"?"Tulis latar & ide sendiri":t.id==="dance"?"Joget lucu, dangdut, K-pop, dll":t.beats.length+" adegan siap pakai",`data-theme-pick="${t.id}"`)).join("")}</div>
  ${S.theme==="custom"?`<div class="group"><div class="field"><label for="ctn">Nama / ide tema</label><input type="text" id="ctn" data-bind="customTheme.name" value="${esc(S.customTheme.name)}" placeholder="contoh: Petualangan mencari harta karun di pulau"></div>
  <div class="field" style="margin-top:10px"><label for="cts">Deskripsi latar tempat (bahasa Inggris lebih akurat)</label><textarea id="cts" data-bind="customTheme.setting" placeholder="contoh: a small tropical island with a pirate shipwreck, palm trees and a hidden cave">${esc(S.customTheme.setting)}</textarea></div>
  <div style="margin-top:10px"><button class="ai" id="aiSetting">✨ Buatkan deskripsi latar dengan AI</button><p class="hint">AI menulis latar dalam bahasa Inggris berdasarkan ide temamu.</p></div></div>`:
+ S.theme==="dance"?`<div class="group"><span class="t">Jenis joget</span><div class="tiles">${DANCES.map(x=>tile(S.dance.type===x.id,x.em,x.name,x.desc+(x.funny?" · lucu":""),`data-dance="${x.id}"`)).join("")}</div></div>
+ <div class="group row"><div><span class="t">Tempo</span><div class="seg">${TEMPOS.map(o=>`<button class="${o[0]===S.dance.tempo?"on":""}" data-tempo="${o[0]}">${o[0]}</button>`).join("")}</div>${S.dance.tempo==="Cepat"?`<p class="hint">Tempo cepat lebih sering membuat tangan dan kaki berubah bentuk.</p>`:""}</div>
+  <div class="field"><label for="venue">Tempat joget</label><select id="venue" data-bind="dance.venue">${VENUES.map(o=>`<option ${o[0]===S.dance.venue?"selected":""}>${o[0]}</option>`).join("")}</select></div></div>
+ <div class="group"><label class="check"><input type="checkbox" id="danceFunny" ${S.dance.funny||danceObj().funny?"checked":""} ${danceObj().funny?"disabled":""}> <span><b>Tambah unsur lucu</b> (ekspresi konyol, timing lebay ala kartun)</span></label>
+  <label class="check"><input type="checkbox" id="danceOwn" ${S.dance.ownSong?"checked":""}> <span><b>Pakai lagu sendiri nanti</b> (video dibuat tanpa musik, lagu ditempel saat editing)</span></label></div>`:
  `<p class="hint" style="margin-top:14px">Latar: ${esc(currentTheme().setting)}</p>`}
 </section>`,
 
@@ -414,10 +484,11 @@ const VIEWS=[
   <p class="hint">Boleh isi pakai bahasa Indonesia seadanya. AI akan menerjemahkan dan menambahkan detail visual supaya karakter konsisten.</p></div>
 </section>`,
 
-()=>{if(!S.scenes.length)buildScenes();return`<section class="panel"><h2>Susun adegan</h2><p class="lead">Adegan sudah diisi otomatis dari tema dan nama karakter. Ubah kalimatnya sesukamu, atau minta AI menyusun alur cerita baru. Satu adegan = satu klip video (sekitar 8 detik di Flow).</p>
+()=>{if(!S.scenes.length)buildScenes();S.sceneCount=String(S.scenes.length);return`<section class="panel"><h2>Susun adegan</h2><p class="lead">Adegan sudah diisi otomatis dari tema dan nama karakter. Ubah kalimatnya sesukamu, atau minta AI menyusun alur cerita baru. Satu adegan = satu klip video (sekitar 8 detik di Flow).</p>
+ <div class="field" style="max-width:320px"><label for="cnt">Jumlah adegan</label><select id="cnt" data-bind="sceneCount">${Array.from({length:12},(_,k)=>k+1).map(n=>`<option value="${n}" ${String(n)===String(S.sceneCount)?"selected":""}>${n} adegan (±${n*8} detik)</option>`).join("")}</select>
+  <p class="hint">Untuk video pendek atau satu klip saja, pilih 1 adegan.</p></div>
  <div class="aibox"><div class="field"><label for="idea">Ide cerita (opsional, boleh bahasa Indonesia)</label><textarea id="idea" data-bind="storyIdea" placeholder="contoh: Kiko kehilangan kucingnya lalu mencarinya keliling kampung bersama Mira">${esc(S.storyIdea)}</textarea></div>
-  <div class="row" style="margin-top:10px"><div class="field"><label for="cnt">Jumlah adegan</label><select id="cnt" data-bind="sceneCount">${[3,4,5,6,7,8,10,12].map(n=>`<option ${String(n)===String(S.sceneCount)?"selected":""}>${n}</option>`).join("")}</select></div>
-  <div><button class="ai" id="aiScenes">✨ Buat alur adegan dengan AI</button></div></div></div>
+  <div style="margin-top:10px"><button class="ai" id="aiScenes">✨ Buat alur adegan dengan AI</button></div></div>
  <div class="idnote" id="idnote" hidden><span id="idtext"></span><button class="ai" id="aiTranslate">🌐 Terjemahkan ke bahasa Inggris</button></div>
  ${S.hemat?`<div class="hemat-sum" id="hsum"></div>`:""}
  <div class="toolbar"><button class="ghost" id="rebuild">Isi ulang dari tema</button><button class="ghost" id="addScene">+ Tambah adegan</button>
@@ -429,7 +500,8 @@ const VIEWS=[
    <div class="field"><label>Jenis shot (gambar)</label><select data-scene="${i}" data-k="shot">${SHOTS.map(o=>`<option ${o[0]===sc.shot?"selected":""}>${o[0]}</option>`).join("")}</select></div>
    <div class="field"><label>Gerak kamera (video)</label><select data-scene="${i}" data-k="cam">${CAMS.map(o=>`<option ${o[0]===sc.cam?"selected":""}>${o[0]}</option>`).join("")}</select></div>
   </div>
-  ${S.audio?`<div class="field" style="margin-top:8px"><label>Dialog (opsional)</label><input type="text" data-scene="${i}" data-k="dialog" value="${esc(sc.dialog)}" placeholder='Wow, lihat itu! — atau — Kiko: "Ayo!" Mira: "Tunggu aku!"'></div>`:""}
+  ${S.audio?`<div class="field" style="margin-top:8px"><label>Dialog (opsional)</label><input type="text" data-scene="${i}" data-k="dialog" value="${esc(sc.dialog)}" placeholder='Wow, lihat itu! — atau — Kiko: "Ayo!" Mira: "Tunggu aku!"'></div>
+  <div class="field" style="margin-top:8px"><label>Nyanyian (opsional, lirik buatan sendiri)</label><input type="text" data-scene="${i}" data-k="sing" value="${esc(sc.sing||"")}" placeholder="Ayo joget, ayo goyang, semua senang"></div>`:""}
   <div class="warn" id="w${i}">${warnHTML(i)}</div>
   ${S.scenes.length>1?`<button class="x" data-delscene="${i}" style="margin-top:6px">Hapus adegan</button>`:""}
  </div></div>`).join("")}
@@ -473,6 +545,12 @@ const VIEWS=[
   <li>Untuk video, pakai fitur generate video AI dan tempel prompt Image → Video atau Text → Video.</li>
   <li>Susun semua klip di timeline video Canva sesuai nomor adegan, lalu tambah musik, teks dan transisi.</li>
   <li>Prompt sudah dibuat ringkas; kalau hasil kurang detail, pindah ke mode Google Flow untuk versi lengkap.</li></ol></div>`;
+ if(danceObj())html+=`<div class="tips" style="margin-top:12px"><h3>Tips joget &amp; lipsync</h3><ol>
+  <li>Satu klip cukup 1–2 gerakan. Kamera wide dan statis paling aman supaya seluruh badan terlihat.</li>
+  <li>Kalau karakter bernyanyi, Flow membuat melodinya sendiri, bukan melodi lagu asli.</li>
+  ${S.dance.ownSong?`<li>Prompt sudah meminta video tanpa musik. Tempel lagumu di Canva atau editor video, lalu potong klip tepat di ketukan lagu.</li>`:`<li>Mau pakai lagu sendiri? Centang "Pakai lagu sendiri nanti" di langkah Tema.</li>`}
+  <li>Untuk gerak bibir yang sinkron dengan lagu asli, pakai aplikasi lip sync khusus yang menerima file audio, setelah klipnya jadi.</li>
+  <li>Lagu terkenal bisa kena klaim hak cipta di YouTube, TikTok, atau Reels. Lebih aman pakai musik bebas lisensi atau dari perpustakaan musik platform.</li></ol></div>`;
  return html+`</section>`}
 ];
 
@@ -523,8 +601,8 @@ async function runAI(id,btn){
    if(Array.isArray(r.texts)){r.texts.forEach((t,k)=>{if(typeof t==="string"&&t.trim()&&idx[k]!==undefined)S.scenes[idx[k]].text=t.trim()});render();toast(idx.length+" adegan sudah diterjemahkan.")}}
   if(id==="aiScenes"){if(S.scenes.some(s=>s.text.trim())&&!confirm("Ganti semua adegan dengan alur buatan AI?"))return;
    const th=currentTheme();
-   const r=await ai("scenes",{theme:th.name,setting:th.setting,mood:en(MOODS,S.mood),chars:S.chars.map(charDesc),count:S.sceneCount,idea:S.storyIdea,hemat:S.hemat},btn);
-   if(Array.isArray(r.scenes)&&r.scenes.length){S.scenes=r.scenes.map(s=>({text:s.text||"",shot:s.shot||"Medium shot",cam:s.cam||"Statis",dialog:s.dialog||""}));if(r.scenes.some(s=>s.dialog))S.audio=true;render();toast(r.scenes.length+" adegan baru dari AI.")}}
+   const r=await ai("scenes",{theme:th.name,setting:th.setting,mood:en(MOODS,S.mood),chars:S.chars.map(charDesc),count:S.sceneCount,idea:S.storyIdea,hemat:S.hemat,dance:danceObj()?{name:danceObj().en,moves:danceObj().moves.map(fill),tempo:en(TEMPOS,S.dance.tempo),funny:S.dance.funny||danceObj().funny}:null},btn);
+   if(Array.isArray(r.scenes)&&r.scenes.length){S.scenes=r.scenes.map(s=>({text:s.text||"",shot:s.shot||"Medium shot",cam:s.cam||"Statis",dialog:s.dialog||"",sing:s.sing||""}));if(r.scenes.some(s=>s.sing))S.audio=true;if(r.scenes.some(s=>s.dialog))S.audio=true;render();toast(r.scenes.length+" adegan baru dari AI.")}}
  }catch(e){toast(e.message,true)}
 }
 async function polish(id,btn){const src=SRC[id];if(!src)return;
@@ -562,6 +640,8 @@ document.addEventListener("click",e=>{const b=e.target.closest("button,[data-go]
    else if(d.style==="original")S.styles=["original"];
    else{S.styles=S.styles.filter(x=>x!=="original");S.styles.push(d.style)}
    render();return}
+ if(d.dance){if(S.dance.type!==d.dance){S.dance.type=d.dance;S.scenes=[]}render();return}
+ if(d.tempo){S.dance.tempo=d.tempo;S.scenes=[];render();return}
  if(d.themePick){if(S.theme!==d.themePick){S.theme=d.themePick;S.scenes=[]}render();return}
  if(d.del){S.chars.splice(+d.del,1);render();return}
  if(d.delscene){S.scenes.splice(+d.delscene,1);render();return}
@@ -574,7 +654,7 @@ document.addEventListener("click",e=>{const b=e.target.closest("button,[data-go]
  if(b.id==="aiSetting"||b.id==="aiChars"||b.id==="aiScenes"||b.id==="aiTranslate"){runAI(b.id,b);return}
  if(b.id==="addChar"){S.chars.push({name:"",type:"Anak perempuan",age:"",look:"",outfit:"",trait:""});render();
    const ins=document.querySelectorAll('[data-k="name"]');ins[ins.length-1].focus();return}
- if(b.id==="addScene"){S.scenes.push({text:"",shot:"Medium shot",cam:"Statis",dialog:""});render();return}
+ if(b.id==="addScene"){if(S.scenes.length>=12)return toast("Maksimal 12 adegan.",true);S.scenes.push({text:"",shot:"Medium shot",cam:"Statis",dialog:""});render();return}
  if(b.id==="rebuild"){if(confirm("Ganti semua adegan dengan versi otomatis dari tema? Perubahanmu akan hilang.")){buildScenes();render()}return}
  if(b.id==="copyAll"){const t=[...document.querySelectorAll("#view .pblock")].map(p=>"### "+p.querySelector(".tag").textContent.replace(" · ✨ AI","")+"\n"+p.querySelector("pre").textContent).join("\n\n");copyText(t,b);return}
  if(b.id==="next"){S.step===STEPS.length-1?go(4):go(S.step+1);return}
@@ -582,14 +662,14 @@ document.addEventListener("click",e=>{const b=e.target.closest("button,[data-go]
  if(b.id==="resetBtn"){if(confirm("Hapus semua isian dan mulai dari awal?")){S=fresh();render()}return}
 });
 document.addEventListener("input",e=>{const t=e.target,d=t.dataset;
- if(d.bind){setPath(d.bind,t.value);return}
+ if(d.bind){setPath(d.bind,t.value);if(t.id==="cnt")resizeScenes();return}
  if(d.char!==undefined){S.chars[+d.char][d.k]=t.value;save();
    if(d.k==="name"){const av=t.parentElement.querySelector(".avatar");if(av)av.textContent=(t.value.trim()||"?")[0].toUpperCase()}
    if(d.k==="type")render();return}
  if(d.scene!==undefined){S.scenes[+d.scene][d.k]=t.value;save();const w=$("#w"+d.scene);if(w)w.innerHTML=warnHTML(+d.scene);updateSum();updateIdNote();return}
 });
 document.addEventListener("change",e=>{const t=e.target;
- if(t.id==="audio"){S.audio=t.checked;render()} if(t.id==="neg"){S.neg=t.checked;save()} if(t.id==="hemat"){S.hemat=t.checked;render()} if(t.id==="autoEn"){S.autoEn=t.checked;render()}
+ if(t.id==="audio"){S.audio=t.checked;render()} if(t.id==="neg"){S.neg=t.checked;save()} if(t.id==="hemat"){S.hemat=t.checked;render()} if(t.id==="autoEn"){S.autoEn=t.checked;render()} if(t.id==="danceFunny"){S.dance.funny=t.checked;S.scenes=[];render()} if(t.id==="danceOwn"){S.dance.ownSong=t.checked;save()}
  if(t.dataset.k==="type")render()});
 
 function copyText(text,btn){const done=()=>{const o=btn.textContent;btn.textContent="Tersalin";btn.classList.add("ok");setTimeout(()=>{btn.textContent=o;btn.classList.remove("ok")},1400)};

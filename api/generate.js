@@ -43,6 +43,11 @@ Mood: ${str(d.mood, 60)}
 Characters:
 - ${chars || "(none given, invent one friendly main character)"}
 ${d.idea ? `Story idea from the user (may be in Indonesian): ${str(d.idea, 800)}` : ""}
+${d.dance ? `This is a DANCE video. Dance style: ${str(d.dance.name, 60)}, ${str(d.dance.tempo, 60)}${d.dance.funny ? ", funny and comedic with exaggerated cartoon expressions" : ""}.
+Example moves: ${(Array.isArray(d.dance.moves) ? d.dance.moves : []).slice(0, 6).map((m) => str(m, 160)).join("; ")}.
+- Each scene shows 1-2 simple dance moves with the full body visible. Mostly use shot "Wide shot" and cam "Statis".
+- Start with the music beginning and end with a fun final pose.
+- Optional "sing": a short catchy original line in Bahasa Indonesia (max 10 words) that a character sings, or "". Never use lyrics from existing songs.` : ""}
 
 Rules:
 - Each scene becomes ONE ~8-second video clip, so describe ONE clear, filmable visual action with emotion. 1-2 sentences.
@@ -51,6 +56,7 @@ Rules:
 - "shot" must be one of: ${SHOTS.join(" | ")}
 - "cam" must be one of: ${CAMS.join(" | ")}
 - "dialog": a short spoken line in Bahasa Indonesia, or "" if silent. Format "Name: line" when it is clear who speaks.
+${d.hemat && d.dance ? "- Credit-saving dance rules: no spins, flips, jumps off the ground or acrobatics; moves stay in place." : ""}
 ${d.hemat ? `- CREDIT-SAVING MODE (free Google Flow), these rules are strict:
   * Exactly ONE action per scene. Never chain actions with "then", "after that", "finally".
   * At most 2 named characters per scene. Others may only appear as unnamed background.
@@ -58,7 +64,7 @@ ${d.hemat ? `- CREDIT-SAVING MODE (free Google Flow), these rules are strict:
   * Prefer cam "Statis", "Zoom in perlahan", "Pan kiri ke kanan" or "Ikuti karakter". Use "Orbit", "Drone dari atas" or "Handheld" only for the first or last scene.
   * Avoid visible text/signs/writing, eating or drinking, crowds, and characters handling small objects with their fingers.` : ""}
 
-Return JSON: {"scenes":[{"text":"...","shot":"...","cam":"...","dialog":"..."}]}`;
+Return JSON: {"scenes":[{"text":"...","shot":"...","cam":"...","dialog":"..."${d.dance ? ',"sing":"..."' : ""}}]}`;
     }
     case "characters": {
       const chars = (Array.isArray(d.chars) ? d.chars : []).slice(0, 8).map((c) => ({
@@ -199,6 +205,7 @@ export default async function handler(req, res) {
         shot: SHOTS.includes(s.shot) ? s.shot : "Medium shot",
         cam: CAMS.includes(s.cam) ? s.cam : "Statis",
         dialog: str(s.dialog, 300),
+        sing: str(s.sing, 200),
       }));
     }
     return res.status(200).json({ result });
